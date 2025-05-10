@@ -15,10 +15,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_06_022202) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "people", force: :cascade do |t|
-    t.string "first_name_h"
-    t.string "last_name_h"
-    t.date "date_of_birth_h"
-    t.string "ssn_h"
+    t.string "first_name"
+    t.string "last_name"
+    t.date "date_of_birth"
+    t.string "ssn"
+    t.integer "age"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

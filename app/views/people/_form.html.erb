@@ -1,7 +1,9 @@
-<% pv = People::View.new person%>
-<p> <%= pv.msg %></p>
-<%= pv.form do %>
-<%= pv.text :first_name %>
+<div class='alert alert.primary'>
+  <%= doit %>
+</div>
+<%= ov_form person do %>
+<%=    ov_text_field :first_name %>
+<%=    ov_text_field :last_name %>
 <% end %>
 
 <%= form_with(model: person) do |form| %>
