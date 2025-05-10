@@ -1,0 +1,2 @@
+class PeopleView
+end
