@@ -1,3 +1,9 @@
+<% pv = People::View.new person%>
+<p> <%= pv.msg %></p>
+<%= pv.form do %>
+<%= pv.text :first_name %>
+<% end %>
+
 <%= form_with(model: person) do |form| %>
   <% if person.errors.any? %>
     <div style="color: red">
