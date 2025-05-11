@@ -11,6 +11,9 @@ Things you may want to cover:
 
 * Configuration
 
+Delete config/master.key and config/credentials.yml.enc
+Generate them with EDITOR="your_editor --wait" bin/rails credentials:edit
+
 * Database creation
 
 * Database initialization

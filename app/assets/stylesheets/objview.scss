@@ -10,15 +10,15 @@
 }
 
 .ov-display {
-    @extend .container;
+    @extend .container !optional;
     .ov-field {
-	@extend .row;
+	@extend .row !optional;
 	.ov-label {
-	    @extend .col-md-2;
+	    @extend .col-md-2 !optional;
 	    align: left;
 	}
 	.ov-text {
-	    @extend .col-md-8;
+	    @extend .col-md-8 !optional;
 	}
     }
 }
