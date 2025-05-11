@@ -90,6 +90,9 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
+    dartsass-rails (0.5.1)
+      railties (>= 6.0.0)
+      sass-embedded (~> 1.63)
     date (3.4.1)
     debug (1.10.0)
       irb (~> 1.10)
@@ -106,6 +109,21 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    google-protobuf (4.30.2)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.30.2-aarch64-linux)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.30.2-arm64-darwin)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.30.2-x86_64-darwin)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.30.2-x86_64-linux)
+      bigdecimal
+      rake (>= 13)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -289,6 +307,22 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
+    sass-embedded (1.87.0-aarch64-linux-gnu)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-aarch64-linux-musl)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-arm-linux-gnueabihf)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-arm-linux-musleabihf)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-arm64-darwin)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-x86_64-darwin)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-x86_64-linux-gnu)
+      google-protobuf (~> 4.30)
+    sass-embedded (1.87.0-x86_64-linux-musl)
+      google-protobuf (~> 4.30)
     securerandom (0.4.1)
     solid_cable (3.0.8)
       actioncable (>= 7.2)
@@ -360,6 +394,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   cssbundling-rails
+  dartsass-rails
   debug
   importmap-rails
   jbuilder

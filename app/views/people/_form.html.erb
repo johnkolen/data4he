@@ -1,12 +1,13 @@
-<div class='alert alert.primary'>
-  <%= doit %>
-</div>
 <%= ov_form person do %>
 <%=    ov_text_field :first_name %>
 <%=    ov_text_field :last_name %>
+<%=    ov_date_field :date_of_birth %>
+<%=    ov_text_field :ssn %>
+<%=    ov_text_field :age %>
+<%=    ov_submit %>
 <% end %>
 
-<%= form_with(model: person) do |form| %>
+<% form_with(model: person) do |form| %>
   <% if person.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
