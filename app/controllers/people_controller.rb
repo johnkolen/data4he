@@ -49,7 +49,7 @@ class PeopleController < ApplicationController
 
   # DELETE /people/1 or /people/1.json
   def destroy
-    @person.destroy!
+    #@person.destroy!
 
     respond_to do |format|
       format.html { redirect_to people_path, status: :see_other, notice: "Person was successfully destroyed." }
@@ -65,6 +65,10 @@ class PeopleController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def person_params
-      params.expect(person: [ :first_name, :last_name, :date_of_birth, :ssn ])
+      params.expect(person: [ :first_name,
+                              :last_name,
+                              :date_of_birth,
+                              :ssn,
+                              :age ])
     end
 end

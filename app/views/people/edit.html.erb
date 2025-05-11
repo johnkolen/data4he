@@ -6,7 +6,8 @@
 
 <br>
 
-<div>
-  <%= link_to "Show this person", @person %> |
-  <%= link_to "Back to people", people_path %>
+<div class='ov-button-row'>
+<%= ov_show @person %>
+<%= ov_index Person %>
+<%= ov_delete @person %>
 </div>

@@ -8,3 +8,23 @@
     border-width: 1px;
     border-color: black;
 }
+
+.ov-display {
+    @extend .container;
+    .ov-field {
+	@extend .row;
+	.ov-label {
+	    @extend .col-md-2;
+	    align: left;
+	}
+	.ov-text {
+	    @extend .col-md-8;
+	}
+    }
+}
+
+.ov-button-row {
+    .button_to {
+	display: inline;
+    }
+}

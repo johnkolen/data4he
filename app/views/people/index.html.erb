@@ -3,13 +3,8 @@
 <% content_for :title, "People" %>
 
 <h1>People</h1>
+<%= ov_new Person %>
 
 <div id="people">
-  <table>
-    <% @people.each do |person| %>
-    <%= render partial: "table_row", locals:{person: person} %>
-  <% end %>
-  </table>
+  <%= ov_table Person, @people %>
 </div>
-
-<%= link_to "New person", new_person_path %>
