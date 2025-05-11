@@ -1,19 +1,15 @@
 <p style="color: green"><%= notice %></p>
-<div class="alert alert-primary" role="alert">
-  This is a primary alert—check it out!
-</div>
 
 <% content_for :title, "People" %>
 
 <h1>People</h1>
 
 <div id="people">
-  <% @people.each do |person| %>
-    <%= render person %>
-    <p>
-      <%= link_to "Show this person", person %>
-    </p>
+  <table>
+    <% @people.each do |person| %>
+    <%= render partial: "table_row", locals:{person: person} %>
   <% end %>
+  </table>
 </div>
 
 <%= link_to "New person", new_person_path %>

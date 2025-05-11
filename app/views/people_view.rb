@@ -1,2 +1,0 @@
-class PeopleView
-end
