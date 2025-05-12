@@ -1,46 +1,20 @@
 <%= ov_form person do %>
+<%=    ov_errors %>
 <%=    ov_text_field :first_name %>
 <%=    ov_text_field :last_name %>
 <%=    ov_date_field :date_of_birth %>
 <%=    ov_text_field :ssn %>
 <%=    ov_text_field :age %>
-<%=    ov_submit %>
+<div>
+<div>Phone Numbers: <%= person.phone_numbers.size %></div>
+<ul>
+  <%# @ov_form.fields_for :phone_numbers do |pnform| %>
+  <%= ov_fields_for :phone_numbers do |pnform| %>
+  <li>
+  <%= render partial: "phone_numbers/phone_numbers" %>
+  </li>
 <% end %>
-
-<% form_with(model: person) do |form| %>
-  <% if person.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
-
-      <ul>
-        <% person.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div>
-    <%= form.label :first_name, style: "display: block" %>
-    <%= form.text_field :first_name %>
-  </div>
-
-  <div>
-    <%= form.label :last_name, style: "display: block" %>
-    <%= form.text_field :last_name %>
-  </div>
-
-  <div>
-    <%= form.label :date_of_birth, style: "display: block" %>
-    <%= form.date_field :date_of_birth %>
-  </div>
-
-  <div>
-    <%= form.label :ssn, style: "display: block" %>
-    <%= form.text_field :ssn %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
+</ul>
+</div>
+<%=    ov_submit %>
 <% end %>

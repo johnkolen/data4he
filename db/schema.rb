@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_06_022202) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_11_231236) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,4 +23,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_06_022202) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "phone_numbers", force: :cascade do |t|
+    t.string "number"
+    t.boolean "primary", default: true
+    t.boolean "active", default: true
+    t.bigint "person_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "index_phone_numbers_on_person_id"
+  end
+
+  add_foreign_key "phone_numbers", "people"
 end

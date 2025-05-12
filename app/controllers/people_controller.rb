@@ -1,9 +1,10 @@
 class PeopleController < ApplicationController
   before_action :set_person, only: %i[ show edit update destroy ]
+  before_action :set_klass
 
   # GET /people or /people.json
   def index
-    @people = Person.all
+    @objects = @people = Person.all
   end
 
   # GET /people/1 or /people/1.json
@@ -13,6 +14,7 @@ class PeopleController < ApplicationController
   # GET /people/new
   def new
     @person = Person.new
+    @person.phone_numbers.build
   end
 
   # GET /people/1/edit
@@ -63,12 +65,19 @@ class PeopleController < ApplicationController
       @person = Person.find(params.expect(:id))
     end
 
+    def set_klass
+      @klass = Person
+      @klass_str = @klass.to_s
+      @klass_p_str = @klass.to_s.pluralize
+    end
+
     # Only allow a list of trusted parameters through.
     def person_params
       params.expect(person: [ :first_name,
                               :last_name,
                               :date_of_birth,
                               :ssn,
-                              :age ])
+                              :age,
+                              phone_numbers_attributes: [:number, :primary, :active]])
     end
 end

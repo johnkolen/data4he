@@ -1,3 +1,7 @@
+body {
+    background-color: #e9eff0;
+}
+
 .ov-form {
 }
 
@@ -10,15 +14,15 @@
 }
 
 .ov-display {
-    @extend .container !optional;
+    @extend .container;
     .ov-field {
-	@extend .row !optional;
+	@extend .row;
 	.ov-label {
-	    @extend .col-md-2 !optional;
+	    @extend .col-md-2;
 	    align: left;
 	}
 	.ov-text {
-	    @extend .col-md-8 !optional;
+	    @extend .col-md-8;
 	}
     }
 }
