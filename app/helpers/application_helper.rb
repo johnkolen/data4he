@@ -36,6 +36,47 @@ module ApplicationHelper
     end
   end
 
+  def ov_checkbox oattr
+    id = oattr
+    cb_class = "form-check-input ov-checkbox"
+    tag.div(class:"ov-field") do
+      [@ov_form ?
+         @ov_form.checkbox(oattr,
+                           class: cb_class,
+                           id: id) :
+         tag.input(@ov_obj.send("#{oattr}"),
+                   type: 'checkbox',
+                   class: cb_class),
+       tag.label(@ov_obj.send("#{oattr}_label"),
+                 for: id,
+                 class: "form-check-label")
+      ].join.html_safe
+    end
+  end
+
+  # In progress
+  def ov_radio oattr, radio_name=nil
+    id = oattr
+    radio_name = "radio-#{radio_name ||= oattr}"
+    cb_class = "form-check-input ov-checkbox"
+    tag.div(class:"ov-field") do
+      [@ov_form ?
+         @ov_form.radio_button(oattr,
+                               class: cb_class,
+                               name: radio_name,
+                               id: id) :
+         tag.input('',
+                   value: @ov_obj.send("#{oattr}") ? 'true' : 'false',
+                   checked: @ov_obj.send("#{oattr}") ? 'checked' : nil,
+                   type: 'radio',
+                   class: cb_class),
+       tag.label(@ov_obj.send("#{oattr}_label"),
+                 for: id,
+                 class: "form-check-label")
+      ].join.html_safe
+    end
+  end
+
   def ov_date_field oattr
     id = oattr
     tag.div(class:"ov-field") do
@@ -134,6 +175,16 @@ module ApplicationHelper
                 polymorphic_path(klass),
                 :method=>:get,
                 class: "btn btn-primary"
+  end
+
+  def ov_add
+    tag.button('Add',
+               class: "add-btn add-#{@ov_obj.class.to_s.downcase}-btn btn btn-primary")
+  end
+
+  def ov_remove
+    tag.button('Remove',
+               class: "remove-btn remove-#{@ov_obj.class.to_s.downcase}-btn btn btn-primary")
   end
 
   def ov_errors
