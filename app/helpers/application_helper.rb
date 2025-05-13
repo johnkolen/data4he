@@ -178,13 +178,29 @@ module ApplicationHelper
   end
 
   def ov_add
-    tag.button('Add',
-               class: "add-btn add-#{@ov_obj.class.to_s.downcase}-btn btn btn-primary")
+    button_class = [
+      "add-btn",
+      "add-#{@ov_obj.class.to_s.downcase}-btn",
+      "btn btn-primary"
+    ].join ' '
+    @ov_new_record_found ||= @ov_obj.new_record?
+    tag.button 'Add',
+               class: button_class,
+               type: 'button',
+               data: {action: "click->ov-fields-for#add"}
   end
 
   def ov_remove
-    tag.button('Remove',
-               class: "remove-btn remove-#{@ov_obj.class.to_s.downcase}-btn btn btn-primary")
+    button_class = [
+      "remove-btn",
+      "remove-#{@ov_obj.class.to_s.downcase}-btn",
+      "btn btn-primary"
+    ].join ' '
+    tag.button 'Remove',
+               class: button_class,
+               type: 'button',
+               "data-bs-toggle": "collapse",
+               "data-bs-target": ".#{@ov_li_id}"
   end
 
   def ov_errors
@@ -204,15 +220,36 @@ module ApplicationHelper
   end
 
   def ov_fields_for oattr, &block
-    hold = @ov_form
+    hold = [@ov_form, @ov_obj, @ov_elem, @ov_new_record_found]
     out = []
-    @ov_form.fields_for oattr do |form|
-      hold_obj = @ov_obj
+    @ov_elem = 0
+    @ov_new_record_found = false
+    name = @ov_obj.class.to_s.downcase
+    out << '<ul data-ov-fields-for-target="list">'
+    @ov_form.fields_for oattr  do |form|
       @ov_form = form
       @ov_obj = form.object
-      out << capture(&block)
+      @ov_elem += 1
+      @ov_li_id = "#{name}-li-#{@ov_elem}"
+      if @ov_obj.new_record?
+        tmp = tag.template id:"ov-#{name}-template",
+                           data:{"ov-fields-for-target": "template"} do
+          capture(&block)
+        end
+        out << tag.div(tmp, class: "hidex")
+      else
+        out << capture(&block)
+      end
     end
-    @ov_form = hold
-    out.join.html_safe
+    out << '</ul>'
+    str = tag.div data:{controller: 'ov-fields-for'} do
+      [tag.label(hold[1].send("#{oattr}_label"),
+                 for: oattr,
+                 class:@ov_form ? "form-label" : "ov-label"),
+       ov_add,
+       out.join.html_safe].join.html_safe
+    end
+    @ov_form, @ov_obj, @ov_elem, @ov_new_record_found = hold
+    str.html_safe
   end
 end

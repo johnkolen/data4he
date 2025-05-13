@@ -18,4 +18,9 @@ RSpec.describe Person, type: :model do
     @p.ssn = '123-45-7890'
     expect(@p.valid?).to eq(true), "#{@p.errors.inspect}"
   end
+
+  it 'has phone_numbers label' do
+    expect(@p.phone_numbers_label).to eq "Phone numbers"
+  end
+
 end

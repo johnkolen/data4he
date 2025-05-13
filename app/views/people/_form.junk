@@ -1,0 +1,13 @@
+<div data-controller='ov-fields-for'>
+<div>Phone Numbers: <%= person.phone_numbers.size %></div>
+<ul data-ov-fields-for-target="list">
+  <%# @ov_form.fields_for :phone_numbers do |pnform| %>
+  <%= ov_fields_for :phone_numbers do |pnform| %>
+  <li class="<%=@ov_li_id %> collapse show">
+  <%= render partial: "phone_numbers/phone_numbers" %>
+  <%= ov_remove %>
+  </li>
+<% end %>
+</ul>
+  <%= ov_add %>
+</div>

@@ -14,7 +14,7 @@ class PeopleController < ApplicationController
   # GET /people/new
   def new
     @person = Person.new
-    @person.phone_numbers.build
+    1.times { @person.phone_numbers.build }
   end
 
   # GET /people/1/edit

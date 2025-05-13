@@ -5,16 +5,8 @@
 <%=    ov_date_field :date_of_birth %>
 <%=    ov_text_field :ssn %>
 <%=    ov_text_field :age %>
-<div>
-<div>Phone Numbers: <%= person.phone_numbers.size %></div>
-<ul>
-  <%# @ov_form.fields_for :phone_numbers do |pnform| %>
-  <%= ov_fields_for :phone_numbers do |pnform| %>
-  <li>
+<%= ov_fields_for :phone_numbers do |pnform| %>
   <%= render partial: "phone_numbers/phone_numbers" %>
-  </li>
 <% end %>
-</ul>
-</div>
 <%=    ov_submit %>
 <% end %>
