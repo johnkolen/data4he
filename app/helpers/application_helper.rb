@@ -191,17 +191,21 @@ module ApplicationHelper
                data: {action: "click->ov-fields-for#add"}
   end
 
-  def ov_remove
+  def ov_remove id
     button_class = [
       "remove-btn",
       "remove-#{@ov_obj.class.to_s.downcase}-btn",
-      "btn btn-primary"
+      "btn btn-danger"
     ].join ' '
-    tag.button 'Remove',
+    (@ov_form.hidden_field("_destroy",
+                           class: "hdestroy",
+                           value: "true").gsub("_destroy", "DESTROY") +
+    tag.button('Remove',
                class: button_class,
                type: 'button',
+               data: {action: "click->ov-fields-for#remove"},
                "data-bs-toggle": "collapse",
-               "data-bs-target": ".#{@ov_li_id}"
+               "data-bs-target": "##{id}")).html_safe
   end
 
   def ov_errors
@@ -222,18 +226,19 @@ module ApplicationHelper
 
   def ov_fields_for_view oattr
     hold = @ov_obj
-    res = @ov_obj.send(oattr).map do |obj|
+    elems = @ov_obj.send(oattr).map do |obj|
       @ov_obj = obj
       render "#{oattr}/#{oattr}"
     end.map do |x|
-      tag.li x, class: "ov-field"
+      tag.li x, class: "ov-object"
     end.join.html_safe
     @ov_obj = hold
-    str = tag.div class: 'ov-fields-for' do
+
+    str = tag.div class: 'ov-field' do
       [tag.label(@ov_obj.send("#{oattr}_label"),
                  for: oattr,
                  class:@ov_form ? "form-label" : "ov-label"),
-       tag.ul(res)
+       tag.ul(elems, class: 'ov-fields-for')
       ].join.html_safe
     end
     str.html_safe
@@ -243,32 +248,36 @@ module ApplicationHelper
     return ov_fields_for_view oattr unless block_given?
     hold = [@ov_form, @ov_obj, @ov_elem, @ov_new_record_found]
     out = []
-    @ov_elem = 0
+    elem_num = 0
     @ov_new_record_found = false
     name = @ov_obj.class.to_s.downcase
-    out << '<ul data-ov-fields-for-target="list">'
+    out << '<ul class="ov-fields-for" data-ov-fields-for-target="list">'
+    out << ov_add
     @ov_form.fields_for oattr  do |form|
       @ov_form = form
       @ov_obj = form.object
-      @ov_elem += 1
-      @ov_li_id = "#{name}-li-#{@ov_elem}"
+      elem_num += 1
+      li_id = "#{name}-li-#{elem_num}"
+      pid = @ov_obj.persisted? ? @ov_form.hidden_field(:id) : ""
+      elem = tag.li((pid + capture(&block) + ov_remove(li_id)).html_safe,
+                    id: li_id,
+                    class: "ov-object collapse show").html_safe
       if @ov_obj.new_record?
-        tmp = tag.template id:"ov-#{name}-template",
-                           data:{"ov-fields-for-target": "template"} do
-          capture(&block)
-        end
-        out << tag.div(tmp, class: "hidex")
+        out << tag.template(elem,
+                            id:"ov-#{name}-template",
+                            data:{"ov-fields-for-target": "template"})
       else
-        out << capture(&block)
+        out << elem
       end
     end
     out << '</ul>'
-    str = tag.div data:{controller: 'ov-fields-for'} do
+
+    str = tag.div class:"ov-field", data:{controller: "ov-fields-for"} do
       [tag.label(hold[1].send("#{oattr}_label"),
                  for: oattr,
                  class:@ov_form ? "form-label" : "ov-label"),
-       ov_add,
-       out.join.html_safe].join.html_safe
+       out.join.html_safe
+      ].join.html_safe
     end
     @ov_form, @ov_obj, @ov_elem, @ov_new_record_found = hold
     str.html_safe

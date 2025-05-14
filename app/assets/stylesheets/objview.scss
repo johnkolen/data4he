@@ -16,40 +16,92 @@ body {
 .ov-display {
     @extend .container;
     .ov-field {
-	@extend .row;
+	@include make-row();
 	.ov-label {
-	    @extend .col-md-2;
+	    @extend .col-md-3;
 	    align: left;
 	}
 	.ov-text {
 	    @extend .col-md-8;
 	}
+	.ov-checkbox-holder {
+	    @extend .col-md-1;
+	}
+	.ov-checkbox-label {
+	    @extend .col-md-3;
+	}
     }
+    li.ov-object {
+	@include make-container();
+	list-style-type: none;
+	/*background-color: green;*/
+    }
+    li.ov-object:after {
+	content: ''; /* Required for pseudo-elements */
+	display: block; /* Make it take up the full width */
+	border-bottom: 1px solid #ccc; /* Style the horizontal rule */
+	margin-top: 0.5em; /* Add some spacing above the rule */
+	margin-bottom: 0.5em; /* Add some spacing below the rule */
+    }
+    li.ov-object:last-child::after {
+	content: none;
+    }
+
     .ov-fields-for {
-	@extend .row;
+	@extend .col-md-8;
 	ul {
-	    @extend .col-md-8;
+	    @extend .container-fluid;
 	}
 	.ov-label {
 	    @extend .col-md-2;
 	    align: left;
 	}
-	.ov-field {
-	    @extend .row;
-	    .ov-label {
-		@extend .col-md-2;
-		align: left;
-	    }
-	    .ov-text {
-		@extend .col-md-8;
-	    }
-	    .ov-checkbox-holder {
-		@extend .col-md-1;
-	    }
-	    .ov-checkbox-label {
-		@extend .col-md-3;
-	    }
+    }
+}
+
+.ov-form {
+    @extend .container;
+    .ov-field {
+	@include make-row();
+	.ov-label {
+	    @extend .col-md-3;
+	    align: left;
 	}
+	.ov-text {
+	    @extend .col-md-8;
+	}
+	.ov-checkbox-holder {
+	    @extend .col-md-1;
+	}
+	.ov-checkbox-label {
+	    @extend .col-md-3;
+	}
+    }
+    .ov-fields-for {
+	@extend .col-md-8;
+	ul {
+	    @extend .container-fluid;
+
+	}
+	.ov-label {
+	    @extend .col-md-2;
+	    align: left;
+	}
+    }
+    li.ov-object {
+	@include make-container();
+	list-style-type: none;
+	/*background-color: green;*/
+    }
+    li.ov-object:after {
+	content: ''; /* Required for pseudo-elements */
+	display: block; /* Make it take up the full width */
+	border-bottom: 1px solid #ccc; /* Style the horizontal rule */
+	margin-top: 0.5em; /* Add some spacing above the rule */
+	margin-bottom: 0.5em; /* Add some spacing below the rule */
+    }
+    li.ov-object:last-child::after {
+	content: none;
     }
 }
 
@@ -57,4 +109,10 @@ body {
     .button_to {
 	display: inline;
     }
+}
+
+.show-border {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
 }

@@ -14,11 +14,12 @@ class PeopleController < ApplicationController
   # GET /people/new
   def new
     @person = Person.new
-    1.times { @person.phone_numbers.build }
+    @person.phone_numbers.build # used by Object View for template
   end
 
   # GET /people/1/edit
   def edit
+    @person.phone_numbers.build # used by Object View for template
   end
 
   # POST /people or /people.json
@@ -56,6 +57,11 @@ class PeopleController < ApplicationController
       format.html { redirect_to people_path, status: :see_other, notice: "Person was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  # GET /people/render
+  def visual
+    #used for CSS debuging
   end
 
   private
