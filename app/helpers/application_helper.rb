@@ -44,12 +44,13 @@ module ApplicationHelper
          @ov_form.checkbox(oattr,
                            class: cb_class,
                            id: id) :
-         tag.input(@ov_obj.send("#{oattr}"),
-                   type: 'checkbox',
-                   class: cb_class),
+         tag.div(tag.input(type: 'checkbox',
+                   checked: @ov_obj.send("#{oattr}"),
+                   onclick: "return false",
+                   class: cb_class), class:"ov-checkbok-holder"),
        tag.label(@ov_obj.send("#{oattr}_label"),
                  for: id,
-                 class: "form-check-label")
+                 class: @ov_form ? "form-check-label" : "ov-checkbox-label")
       ].join.html_safe
     end
   end
@@ -219,7 +220,27 @@ module ApplicationHelper
     end.html_safe
   end
 
+  def ov_fields_for_view oattr
+    hold = @ov_obj
+    res = @ov_obj.send(oattr).map do |obj|
+      @ov_obj = obj
+      render "#{oattr}/#{oattr}"
+    end.map do |x|
+      tag.li x, class: "ov-field"
+    end.join.html_safe
+    @ov_obj = hold
+    str = tag.div class: 'ov-fields-for' do
+      [tag.label(@ov_obj.send("#{oattr}_label"),
+                 for: oattr,
+                 class:@ov_form ? "form-label" : "ov-label"),
+       tag.ul(res)
+      ].join.html_safe
+    end
+    str.html_safe
+  end
+
   def ov_fields_for oattr, &block
+    return ov_fields_for_view oattr unless block_given?
     hold = [@ov_form, @ov_obj, @ov_elem, @ov_new_record_found]
     out = []
     @ov_elem = 0

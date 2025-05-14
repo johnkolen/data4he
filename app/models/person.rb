@@ -1,6 +1,8 @@
 class Person < ApplicationRecord
   has_many :phone_numbers, inverse_of: :person
-  accepts_nested_attributes_for :phone_numbers
+  # destroy with _destroy
+  accepts_nested_attributes_for :phone_numbers,
+                                allow_destroy: true
 
   # use same regex for both client- and server-side validation
   # single quotes due to possible regex backslashes

@@ -24,7 +24,6 @@ class PeopleController < ApplicationController
   # POST /people or /people.json
   def create
     @person = Person.new(person_params)
-
     respond_to do |format|
       if @person.save
         format.html { redirect_to @person, notice: "Person was successfully created." }
@@ -73,11 +72,20 @@ class PeopleController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def person_params
-      params.expect(person: [ :first_name,
-                              :last_name,
-                              :date_of_birth,
-                              :ssn,
-                              :age,
-                              phone_numbers_attributes: [:number, :primary, :active]])
+      params.
+        expect! person: [
+                 :first_name,
+                 :last_name,
+                 :date_of_birth,
+                 :ssn,
+                 :age,
+                 phone_numbers_attributes: [[
+                   :id,
+                   :number,
+                   :primary,
+                   :active,
+                   :_destroy # if true, destroy the object
+                 ]]
+               ]
     end
 end

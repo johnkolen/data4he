@@ -25,6 +25,32 @@ body {
 	    @extend .col-md-8;
 	}
     }
+    .ov-fields-for {
+	@extend .row;
+	ul {
+	    @extend .col-md-8;
+	}
+	.ov-label {
+	    @extend .col-md-2;
+	    align: left;
+	}
+	.ov-field {
+	    @extend .row;
+	    .ov-label {
+		@extend .col-md-2;
+		align: left;
+	    }
+	    .ov-text {
+		@extend .col-md-8;
+	    }
+	    .ov-checkbox-holder {
+		@extend .col-md-1;
+	    }
+	    .ov-checkbox-label {
+		@extend .col-md-3;
+	    }
+	}
+    }
 }
 
 .ov-button-row {

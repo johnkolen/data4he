@@ -23,4 +23,22 @@ RSpec.describe Person, type: :model do
     expect(@p.phone_numbers_label).to eq "Phone numbers"
   end
 
+  it 'accepts nested attributes' do
+    p = Person.new first_name: 'Alex',
+                   last_name: 'Alpha',
+                   ssn: '123-12-1234',
+                   phone_numbers_attributes: {
+                     "0" => {number: '(123)456-9876',
+                             primary: '1',
+                             active: '1'}
+                   }
+    expect {
+      expect {
+        p.save!
+      }.to change{Person.count}.by(1)
+    }.to change{PhoneNumber.count}.by(1)
+    expect(p.persisted?)
+    q = Person.find(p.id)
+    expect(q.phone_numbers[0].number).to eq '(123)456-9876'
+  end
 end
