@@ -14,6 +14,7 @@ module ApplicationHelper
   end
 
   def ov_display obj = nil, &block
+    return capture &block if @ov_form
     @ov_obj = obj || @ov_obj
     content = capture &block
 
@@ -96,6 +97,7 @@ module ApplicationHelper
   end
 
   def ov_table klass, objs = []
+    return unless objs
     sym = klass.to_s.downcase.to_sym
     content = [
       render(partial: "table_row",
@@ -224,7 +226,7 @@ module ApplicationHelper
     end.html_safe
   end
 
-  def ov_fields_for_view oattr
+  def _get_objects oattr
     hold = @ov_obj
     elems = @ov_obj.send(oattr).map do |obj|
       @ov_obj = obj
@@ -233,6 +235,11 @@ module ApplicationHelper
       tag.li x, class: "ov-object"
     end.join.html_safe
     @ov_obj = hold
+    elems
+  end
+
+  def ov_fields_for_view oattr
+    elems = _get_objects oattr
 
     str = tag.div class: 'ov-field' do
       [tag.label(@ov_obj.send("#{oattr}_label"),
@@ -244,33 +251,59 @@ module ApplicationHelper
     str.html_safe
   end
 
+  def ov_one_to_one? other, oattr
+    #raise "#{@ov_obj.inspect} #{other.inspect} #{oattr.inspect}"
+    #raise "#{@ov_obj.inspect}"
+    macro = other.class.reflect_on_association(oattr).macro
+    #raise macro.inspect
+    other_klass = other.class.to_s.downcase
+    #raise other_klass.inspect
+    other_macro = @ov_obj.class.
+                    reflect_on_association(other.class.to_s.downcase).macro
+    #raise "#{other.class}.#{oattr}->#{macro.inspect} #{@ov_obj.class}.#{other_klass}->#{other_macro.inspect}"
+    macro == :belongs_to && other_macro == :has_one
+  end
+
   def ov_fields_for oattr, &block
-    return ov_fields_for_view oattr unless block_given?
+    return ov_fields_for_view oattr unless @ov_form
     hold = [@ov_form, @ov_obj, @ov_elem, @ov_new_record_found]
     out = []
     elem_num = 0
     @ov_new_record_found = false
     name = @ov_obj.class.to_s.downcase
     out << '<ul class="ov-fields-for" data-ov-fields-for-target="list">'
-    out << ov_add
+    out << :OV_ADD
+    has_template = false
     @ov_form.fields_for oattr  do |form|
       @ov_form = form
       @ov_obj = form.object
       elem_num += 1
       li_id = "#{name}-li-#{elem_num}"
       pid = @ov_obj.persisted? ? @ov_form.hidden_field(:id) : ""
-      elem = tag.li((pid + capture(&block) + ov_remove(li_id)).html_safe,
+      fields = block_given? ? capture(&block) :
+                 render("#{oattr.to_s.pluralize}/#{oattr}", oattr=>@ov_obj)
+      elem = tag.li((pid + fields + ov_remove(li_id)).html_safe,
                     id: li_id,
                     class: "ov-object collapse show").html_safe
-      if @ov_obj.new_record?
+      #raise ov_one_to_one?(hold[1], oattr).inspect
+      if @ov_obj.new_record? && !ov_one_to_one?(hold[1], oattr)
         out << tag.template(elem,
                             id:"ov-#{name}-template",
                             data:{"ov-fields-for-target": "template"})
+        has_template = true
       else
         out << elem
       end
     end
     out << '</ul>'
+
+    if has_template
+      idx = out.index :OV_ADD
+      raise 'wtf?' unless idx
+      out[idx] = ov_add
+    else
+      out.delete :OV_ADD
+    end
 
     str = tag.div class:"ov-field", data:{controller: "ov-fields-for"} do
       [tag.label(hold[1].send("#{oattr}_label"),

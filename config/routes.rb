@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :students
   get "/about" => "static#about"
   resources :people do
     collection do

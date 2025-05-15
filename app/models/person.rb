@@ -1,5 +1,6 @@
 class Person < ApplicationRecord
   has_many :phone_numbers, inverse_of: :person
+  has_one :student
   # destroy with _destroy
   accepts_nested_attributes_for :phone_numbers,
                                 allow_destroy: true
