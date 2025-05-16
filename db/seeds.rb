@@ -8,7 +8,6 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-prev = '2000'
 5.times do |i|
   AcademicYear.find_or_create_by!(year: "#{2020 + i}-#{2021 + i}")
 end

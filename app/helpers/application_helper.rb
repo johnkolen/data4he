@@ -1,183 +1,232 @@
 module ApplicationHelper
-  def object_view obj
+  def navigation(**options, &block)
+    brand = options.delete(:_brand)
+    tag.nav class: "navbar navbar-expand-lg navbar-light bg-light" do
+      tag.div class: "container-fluid" do
+        v1 = link_to(brand, root_path, class: "navbar-brand")
+        v2 = tag.div(class: "collase navbar-collapse") do
+          tag.ul class: "nav" do
+            options.map do |label, path|
+              tag.li(link_to(label, path, class: "nav-link active"))
+            end.join.html_safe
+          end
+        end
+        (v1 + v2).html_safe
+      end
+    end
+  end
+
+  def object_view(obj)
     @ov_obj = obj
   end
 
-  def ov_form obj = nil, &block
+  def ov_form(obj = nil, &block)
     @ov_obj = obj || @ov_obj
     f = form_with(model: @ov_obj,
-                  class: 'ov-form') do |form|
+                  class: "ov-form") do |form|
       @ov_form = form
       capture &block
     end
-    tag.div f, class: 'ov-form-wrapper'
+    tag.div f, class: "ov-form-wrapper"
   end
 
-  def ov_display obj = nil, &block
+  def ov_display(obj = nil, &block)
     return capture &block if @ov_form
     @ov_obj = obj || @ov_obj
     content = capture &block
 
-    tag.div content, id: dom_id(@ov_obj), class: 'ov-display'
+    tag.div content, id: dom_id(@ov_obj), class: "ov-display"
   end
 
-  def ov_text_field oattr
+  def ov_text_field(oattr)
     id = oattr
-    tag.div(class:"ov-field") do
-      [tag.label(@ov_obj.send("#{oattr}_label"),
-                 for: id,
-                 class:@ov_form ? "form-label" : "ov-label"),
-       @ov_form ?
-         @ov_form.text_field(oattr,
-                             class: "form-control",
-                             pattern: @ov_obj.send("#{oattr}_pattern"),
-                             id: id) :
-         tag.div( @ov_obj.send("#{oattr}"), class: "ov-text")
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          @ov_form.text_field(oattr,
+                              class: "form-control",
+                              pattern: @ov_obj.send("#{oattr}_pattern"),
+                              id: id) :
+          tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
       ].join.html_safe
     end
   end
 
-  def ov_checkbox oattr
+  def ov_checkbox(oattr)
     id = oattr
     cb_class = "form-check-input ov-checkbox"
-    tag.div(class:"ov-field") do
-      [@ov_form ?
-         @ov_form.checkbox(oattr,
-                           class: cb_class,
-                           id: id) :
-         tag.div(tag.input(type: 'checkbox',
-                   checked: @ov_obj.send("#{oattr}"),
-                   onclick: "return false",
-                   class: cb_class), class:"ov-checkbok-holder"),
-       tag.label(@ov_obj.send("#{oattr}_label"),
-                 for: id,
-                 class: @ov_form ? "form-check-label" : "ov-checkbox-label")
+    tag.div(class: "ov-field") do
+      [ @ov_form ?
+          @ov_form.checkbox(oattr,
+                            class: cb_class,
+                            id: id) :
+          tag.div(tag.input(type: "checkbox",
+                            checked: @ov_obj.send("#{oattr}"),
+                            onclick: "return false",
+                            class: cb_class), class: "ov-checkbok-holder"),
+        tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-check-label" : "ov-checkbox-label")
+      ].join.html_safe
+    end
+  end
+
+  def ov_select(oattr)
+    id = oattr
+    s_class = "form-select ov-select"
+    opts = options_for_select(@ov_obj.send("#{oattr}_options"))
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          tag.div(@ov_form.select("#{oattr}_id",
+                                  opts,
+                                  {},
+                                  { class: s_class }
+                                 ), class: "ov-select-holder"):
+          tag.div(@ov_obj.send("#{oattr}_str"), class: "ov-text")
       ].join.html_safe
     end
   end
 
   # In progress
-  def ov_radio oattr, radio_name=nil
+  def ov_radio(oattr, radio_name = nil)
     id = oattr
     radio_name = "radio-#{radio_name ||= oattr}"
     cb_class = "form-check-input ov-checkbox"
-    tag.div(class:"ov-field") do
-      [@ov_form ?
-         @ov_form.radio_button(oattr,
-                               class: cb_class,
-                               name: radio_name,
-                               id: id) :
-         tag.input('',
-                   value: @ov_obj.send("#{oattr}") ? 'true' : 'false',
-                   checked: @ov_obj.send("#{oattr}") ? 'checked' : nil,
-                   type: 'radio',
-                   class: cb_class),
-       tag.label(@ov_obj.send("#{oattr}_label"),
-                 for: id,
-                 class: "form-check-label")
+    tag.div(class: "ov-field") do
+      [ @ov_form ?
+          @ov_form.radio_button(oattr,
+                                class: cb_class,
+                                name: radio_name,
+                                id: id) :
+          tag.input("",
+                    value: @ov_obj.send("#{oattr}") ? "true" : "false",
+                    checked: @ov_obj.send("#{oattr}") ? "checked" : nil,
+                    type: "radio",
+                    class: cb_class),
+        tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: "form-check-label")
       ].join.html_safe
     end
   end
 
-  def ov_date_field oattr
+  def ov_date_field(oattr)
     id = oattr
-    tag.div(class:"ov-field") do
-      [tag.label(@ov_obj.send("#{oattr}_label"),
-                 for: id,
-                 class:@ov_form ? "form-label" : "ov-label"),
-       @ov_form ?
-         @ov_form.date_field(oattr, class: "form-control", id: id) :
-         tag.div( @ov_obj.send("#{oattr}_str"), class: "ov-text")
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          @ov_form.date_field(oattr, class: "form-control", id: id) :
+          tag.div(@ov_obj.send("#{oattr}_str"), class: "ov-text")
       ].join.html_safe
     end
   end
 
-  def ov_submit label = 'Submit'
-    tag.button label, type: :submit, class: 'btn btn-primary'
+  def ov_submit(label = "Submit")
+    tag.button label, type: :submit, class: "btn btn-primary"
   end
 
-  def ov_table klass, objs = []
+  def ov_table(klass, objs = [])
     return unless objs
     sym = klass.to_s.downcase.to_sym
+    obj = klass.new
+    obj.add_builds!
+
     content = [
       render(partial: "table_row",
-             locals: {sym => [klass.new]})
+             locals: { sym => [ obj ] })
     ]
     objs.each do |obj|
-      content << render(partial: "table_row", locals:{sym => obj})
+      content << render(partial: "table_row", locals: { sym => obj })
     end
     tag.table content.join.html_safe,
               id: "#{klass.to_s.downcase}_table",
-              class: 'ov-display'
+              class: "ov-display"
   end
 
-  def ov_table_row obj = nil, &block
+  def ov_table_row(obj = nil, &block)
     @ov_obj = obj || @ov_obj
     content = capture &block
     if @ov_obj.is_a? Array
-      tag.tr content.html_safe,  class: 'ov-table-row-head'
+      tag.tr content.html_safe,  class: "ov-table-row-head"
     else
-      tag.tr content.html_safe, id: dom_id(@ov_obj), class: 'ov-table-row'
+      content += '<td class="ov-table-col">'.html_safe
+      content += ov_show
+      content += ov_edit
+      content += ov_delete
+      content += "</td>".html_safe
+      tag.tr content.html_safe, id: dom_id(@ov_obj), class: "ov-table-row"
     end
   end
 
-  def ov_col oattr
+  def ov_with(oattr, &block)
+    hold = @ov_obj
+    @ov_obj =
+      if @ov_obj.is_a? Array
+        [ @ov_obj.first.send(oattr) ]
+      else
+        @ov_obj.send(oattr)
+      end
+    res = capture &block
+    @ov_obj = hold
+    res
+  end
+
+  def ov_col(oattr)
     if @ov_obj.is_a? Array
-      tag.td( @ov_obj.first.send("#{oattr}_label"), class: "ov-table-hdr")
+      tag.td(@ov_obj.first.send("#{oattr}_label"), class: "ov-table-hdr")
     else
-      tag.td( @ov_obj.send("#{oattr}"), class: "ov-table-col")
+      tag.td(@ov_obj.send("#{oattr}_str"), class: "ov-table-col")
     end
   end
 
-  def ov_show obj=nil
+  def ov_show(obj = nil)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    #edit_person_path(@ov_obj)
     b=button_to "Show", polymorphic_path(obj),
-                :method=>:get,
+                method: :get,
                 class: "btn btn-primary"
-    tag.td(b, class: "ov-table-col-button")
-
+    tag.div(b, class: "ov-table-col-button")
   end
 
-  def ov_edit obj=nil
+  def ov_edit(obj = nil)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    #edit_person_path(@ov_obj)
     b=button_to "Edit", edit_polymorphic_path(obj),
-                :method=>:get,
+                method: :get,
                 class: "btn btn-primary"
-    tag.td(b, class: "ov-table-col-button")
-
+    tag.div(b, class: "ov-table-col-button")
   end
 
-  def ov_delete obj=nil
+  def ov_delete(obj = nil)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    #edit_person_path(@ov_obj)
     b=button_to "Delete",
                 polymorphic_path(obj),
-                :method=>:delete,
-                form: { data: { turbo_confirm: 'Are you sure?' } },
+                method: :delete,
+                form: { data: { turbo_confirm: "Are you sure?" } },
                 class: "btn btn-danger"
-    tag.td(b, class: "ov-table-col-button")
-
+    tag.div(b, class: "ov-table-col-button")
   end
 
-  def ov_new klass
+  def ov_new(klass)
     return if klass.is_a? Array
-    #edit_person_path(@ov_obj)
     button_to "New", new_polymorphic_path(klass),
-                :method=>:get,
-                class: "btn btn-primary"
+              method: :get,
+              class: "btn btn-primary"
   end
 
-  def ov_index klass
-    #edit_person_path(@ov_obj)
+  def ov_index(klass)
     button_to klass.to_s.pluralize,
-                polymorphic_path(klass),
-                :method=>:get,
-                class: "btn btn-primary"
+              polymorphic_path(klass),
+              method: :get,
+              class: "btn btn-primary"
   end
 
   def ov_add
@@ -185,134 +234,141 @@ module ApplicationHelper
       "add-btn",
       "add-#{@ov_obj.class.to_s.downcase}-btn",
       "btn btn-primary"
-    ].join ' '
+    ].join " "
     @ov_new_record_found ||= @ov_obj.new_record?
-    tag.button 'Add',
+    tag.button "Add",
                class: button_class,
-               type: 'button',
-               data: {action: "click->ov-fields-for#add"}
+               type: "button",
+               data: { action: "click->ov-fields-for#add" }
   end
 
-  def ov_remove id
+  def ov_remove(id)
     button_class = [
       "remove-btn",
       "remove-#{@ov_obj.class.to_s.downcase}-btn",
       "btn btn-danger"
-    ].join ' '
+    ].join " "
     (@ov_form.hidden_field("_destroy",
                            class: "hdestroy",
                            value: "true").gsub("_destroy", "DESTROY") +
-    tag.button('Remove',
-               class: button_class,
-               type: 'button',
-               data: {action: "click->ov-fields-for#remove"},
-               "data-bs-toggle": "collapse",
-               "data-bs-target": "##{id}")).html_safe
+     tag.button("Remove",
+                class: button_class,
+                type: "button",
+                data: { action: "click->ov-fields-for#remove" },
+                "data-bs-toggle": "collapse",
+                "data-bs-target": "##{id}")).html_safe
   end
 
   def ov_errors
     return nil unless @ov_obj && @ov_obj.errors.any?
     tag.div class: "alert alert-danger ov-error" do
-      out = [tag.h2("#{pluralize(@ov_obj.errors.count, "error")} " +
-                    "prohibited this " +
-                    @ov_obj.class.to_s.downcase +
-                    "from being saved:",
-                    class: 'ov-error-header'), "<ul>"]
+      out = [ tag.h2("#{pluralize(@ov_obj.errors.count, "error")} " +
+                     "prohibited this " +
+                     @ov_obj.class.to_s.downcase +
+                     "from being saved:",
+                     class: "ov-error-header"), "<ul>" ]
       @ov_obj.errors.each do |error|
-        out << tag.li(error.full_message, class: 'ov-error-item')
+        out << tag.li(error.full_message, class: "ov-error-item")
       end
       out << "</ul>"
       out.join.html_safe
     end.html_safe
   end
 
-  def _get_objects oattr
+  def _get_objects(oattr)
     hold = @ov_obj
-    elems = @ov_obj.send(oattr).map do |obj|
-      @ov_obj = obj
-      render "#{oattr}/#{oattr}"
-    end.map do |x|
-      tag.li x, class: "ov-object"
-    end.join.html_safe
+    if ov_one_to_one? oattr
+      @ov_obj = @ov_obj.send(oattr)
+      elems = [ render(partial: "#{oattr.to_s.pluralize}/#{oattr}",
+                       locals: { oattr => @ov_obj }) ]
+    else
+      elems = @ov_obj.send(oattr).map do |obj|
+        @ov_obj = obj
+        render "#{oattr}/#{oattr}"
+      end.map do |x|
+        tag.li x, class: "ov-object"
+      end
+    end
     @ov_obj = hold
-    elems
+    elems.join.html_safe
   end
 
-  def ov_fields_for_view oattr
+  def ov_fields_for_view(oattr)
+    if ov_one_to_one? oattr
+    end
     elems = _get_objects oattr
 
-    str = tag.div class: 'ov-field' do
-      [tag.label(@ov_obj.send("#{oattr}_label"),
-                 for: oattr,
-                 class:@ov_form ? "form-label" : "ov-label"),
-       tag.ul(elems, class: 'ov-fields-for')
+    str = tag.div class: "ov-field" do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: oattr,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        tag.ul(elems, class: "ov-fields-for")
       ].join.html_safe
     end
     str.html_safe
   end
 
-  def ov_one_to_one? other, oattr
-    #raise "#{@ov_obj.inspect} #{other.inspect} #{oattr.inspect}"
-    #raise "#{@ov_obj.inspect}"
-    macro = other.class.reflect_on_association(oattr).macro
-    #raise macro.inspect
-    other_klass = other.class.to_s.downcase
-    #raise other_klass.inspect
-    other_macro = @ov_obj.class.
-                    reflect_on_association(other.class.to_s.downcase).macro
-    #raise "#{other.class}.#{oattr}->#{macro.inspect} #{@ov_obj.class}.#{other_klass}->#{other_macro.inspect}"
-    macro == :belongs_to && other_macro == :has_one
+  def set_ov_obj(obj)
+    @ov_obj = obj
   end
 
-  def ov_fields_for oattr, &block
+  def ov_one_to_one?(oattr)
+    r = @ov_obj.class.reflect_on_association(oattr)
+    r.macro == :belongs_to && r.inverse_of.macro == :has_one
+  end
+
+  def ov_fields_for(oattr, &block)
     return ov_fields_for_view oattr unless @ov_form
-    hold = [@ov_form, @ov_obj, @ov_elem, @ov_new_record_found]
+    hold = [ @ov_form, @ov_obj, @ov_elem ]
     out = []
-    elem_num = 0
-    @ov_new_record_found = false
+
+    one2one = ov_one_to_one?(oattr)
+    unless one2one
+      # only show add button and construct a list
+      # for one-to-many or many-to-many relationships
+      out << '<ul class="ov-fields-for" data-ov-fields-for-target="list">'
+      out << ov_add
+    end
+
     name = @ov_obj.class.to_s.downcase
-    out << '<ul class="ov-fields-for" data-ov-fields-for-target="list">'
-    out << :OV_ADD
-    has_template = false
+    elem_num = 0
     @ov_form.fields_for oattr  do |form|
       @ov_form = form
       @ov_obj = form.object
       elem_num += 1
       li_id = "#{name}-li-#{elem_num}"
+      # include object"s id  if it's been persisted
       pid = @ov_obj.persisted? ? @ov_form.hidden_field(:id) : ""
       fields = block_given? ? capture(&block) :
                  render("#{oattr.to_s.pluralize}/#{oattr}", oattr=>@ov_obj)
-      elem = tag.li((pid + fields + ov_remove(li_id)).html_safe,
+      li_body = pid + fields
+      li_body += ov_remove(li_id) unless one2one
+      elem = tag.li(li_body.html_safe,
                     id: li_id,
                     class: "ov-object collapse show").html_safe
-      #raise ov_one_to_one?(hold[1], oattr).inspect
-      if @ov_obj.new_record? && !ov_one_to_one?(hold[1], oattr)
+      if !one2one && @ov_obj.new_record?
         out << tag.template(elem,
-                            id:"ov-#{name}-template",
-                            data:{"ov-fields-for-target": "template"})
-        has_template = true
+                            id: "ov-#{name}-template",
+                            data: { "ov-fields-for-target": "template" })
       else
         out << elem
       end
     end
-    out << '</ul>'
-
-    if has_template
-      idx = out.index :OV_ADD
-      raise 'wtf?' unless idx
-      out[idx] = ov_add
-    else
-      out.delete :OV_ADD
+    unless one2one
+      out << "</ul>"
     end
 
-    str = tag.div class:"ov-field", data:{controller: "ov-fields-for"} do
-      [tag.label(hold[1].send("#{oattr}_label"),
-                 for: oattr,
-                 class:@ov_form ? "form-label" : "ov-label"),
-       out.join.html_safe
+    str = tag.div class: "ov-field",
+                  data: { controller: "ov-fields-for" } do
+      # only show label for one-to-many or many-to-many
+      [ one2one ? "" :
+          tag.label(hold[1].send("#{oattr}_label"),
+                    for: oattr,
+                    class: @ov_form ? "form-label" : "ov-label"),
+        out.join.html_safe
       ].join.html_safe
     end
-    @ov_form, @ov_obj, @ov_elem, @ov_new_record_found = hold
+    @ov_form, @ov_obj, @ov_elem = hold
     str.html_safe
   end
 end

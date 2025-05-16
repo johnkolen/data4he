@@ -24,8 +24,17 @@
 
   <body>
     <div class="header">
-      <%= image_tag "data4he.png", size: 90 %>
+      <%= navigation _brand: image_tag("data4he.png", size: 90),
+	  People: people_path,
+	  Students: students_path
+	  %>
     </div>
+    <% if notice %>
+    <div class="alert alert-success"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+    <div class="alert alert-primary"><%= alert %></div>
+    <% end %>
     <%= yield %>
   </body>
 </html>

@@ -13,21 +13,33 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/students", type: :request do
-  
+  before :all do
+    @academic_year = create :academic_year
+  end
   # This should return the minimal set of attributes required to create a valid
   # Student. As you add validations to Student, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    {"inst_id"=>"9xxx",
+     "person_attributes"=>{
+       "first_name"=>"stu",
+       "last_name"=>"dent",
+       "date_of_birth"=>"2025-05-05",
+       "ssn"=>"873-18-0932",
+       "age"=>"33",
+       "phone_numbers_attributes"=>{
+         "0"=>{"number"=>"(850)603-9985", "primary"=>"1", "active"=>"1"}}},
+     "catalog_year_id"=>@academic_year.id}
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {"inst_id"=>"9xxx", "person_attributes"=>{"first_name"=>"stu", "last_name"=>"dent", "date_of_birth"=>"2025-05-05", "ssn"=>"873180932", "age"=>"33", "phone_numbers_attributes"=>{"0"=>{"number"=>"(850)603-9985", "primary"=>"1", "active"=>"1"}}}, "catalog_year_id"=>"4"}
   }
 
   describe "GET /index" do
     it "renders a successful response" do
       Student.create! valid_attributes
+
       get students_url
       expect(response).to be_successful
     end
@@ -59,6 +71,10 @@ RSpec.describe "/students", type: :request do
   describe "POST /create" do
     context "with valid parameters" do
       it "creates a new Student" do
+        s = Student.new valid_attributes
+        expect {
+          s.save!
+        }.to change(Student, :count).by(1)
         expect {
           post students_url, params: { student: valid_attributes }
         }.to change(Student, :count).by(1)
@@ -87,14 +103,19 @@ RSpec.describe "/students", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {"inst_id"=>"333",
+         "person_attributes" =>{"first_name"=>"Xubi",
+                                "last_name"=>"Xdubi"}
+        }
       }
 
       it "updates the requested student" do
         student = Student.create! valid_attributes
         patch student_url(student), params: { student: new_attributes }
         student.reload
-        skip("Add assertions for updated state")
+        expect(student.inst_id).to eq "333"
+        expect(student.person.first_name).to eq "Xubi"
+        expect(student.person.last_name).to eq "Xdubi"
       end
 
       it "redirects to the student" do

@@ -1,13 +1,18 @@
 class Person < ApplicationRecord
-  has_many :phone_numbers, inverse_of: :person
-  has_one :student
-  # destroy with _destroy
+  has_many :phone_numbers,
+           inverse_of: :person,
+           dependent: :destroy
+  has_one :student,
+          inverse_of: :person,
+          dependent: :destroy
+
   accepts_nested_attributes_for :phone_numbers,
+                                update_only: true,  # allow partial updates
                                 allow_destroy: true
 
   # use same regex for both client- and server-side validation
   # single quotes due to possible regex backslashes
-  SSN_RE_STR = '[0-9]{3}-[0-9]{2}-[0-9]{4}'
+  SSN_RE_STR = "[0-9]{3}-[0-9]{2}-[0-9]{4}"
 
   validates :first_name, presence: true
   validates :ssn, format: {
@@ -16,6 +21,10 @@ class Person < ApplicationRecord
             }
 
   include MetaAttributes
+
+  def add_builds!
+    phone_numbers.build
+  end
 
   def ssn_pattern
     SSN_RE_STR

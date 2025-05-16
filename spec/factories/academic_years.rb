@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :academic_year do
-    year { "MyString" }
+    year { "2020-2021" }
   end
 end

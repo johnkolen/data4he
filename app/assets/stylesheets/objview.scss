@@ -70,6 +70,10 @@ body {
 	.ov-text {
 	    @extend .col-md-8;
 	}
+	.ov-select-holder {
+	    @extend .col-md-3;
+	    padding-left: 10px;
+	}
 	.ov-checkbox-holder {
 	    @extend .col-md-1;
 	}
@@ -105,6 +109,17 @@ body {
     }
 }
 
+.ov-table-hdr {
+    font-weight: bold;
+}
+.ov-table-col {
+    .ov-table-col-button {
+	display: inline;
+	.button_to {
+	    display: inline;
+	}
+    }
+}
 .ov-button-row {
     .button_to {
 	display: inline;

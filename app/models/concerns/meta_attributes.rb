@@ -4,12 +4,12 @@ module MetaAttributes
   extend ActiveSupport::Concern
 
   included do
-    def is_field? x
+    def is_field?(x)
       attribute_names.member?(x) ||
         self.class.reflect_on_association(x)
     end
 
-    def method_missing name, *args, &block
+    def method_missing(name, *args, &block)
       case name
       when /^(.*)_str$/
         if is_field? $1
@@ -27,7 +27,7 @@ module MetaAttributes
       super
     end
 
-    def respond_to? name, include_private = false
+    def respond_to?(name, include_private = false)
       case name
       when /^(.*)_str$/,
            /^(.*)_label$/,

@@ -1,10 +1,10 @@
-<p style="color: green"><%= notice %></p>
+<p style="alert alert-primary"><%= notice %></p>
 
 <h1>Person</h1>
 <%= render @person %>
 
 <div class='ov-button-row'>
-<%= ov_edit @person %>
-<%= ov_index Person %>
-<%= ov_delete @person %>
+<%= ov_edit @object %>
+<%= ov_index @klass %>
+<%= ov_delete @object %>
 </div>

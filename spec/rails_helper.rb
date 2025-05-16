@@ -76,4 +76,5 @@ RSpec.configure do |config|
   config.before(:each, js: true) { DatabaseCleaner.strategy = :transaction }
   config.before(:each) { DatabaseCleaner.start }
   config.before(:each) { DatabaseCleaner.clean }
+  config.include FactoryBot::Syntax::Methods
 end

@@ -4,7 +4,7 @@ class StudentsController < ApplicationController
 
   # GET /students or /students.json
   def index
-    @students = Student.all
+    @objects = @students = Student.all
   end
 
   # GET /students/1 or /students/1.json
@@ -15,10 +15,12 @@ class StudentsController < ApplicationController
   def new
     @student = Student.new
     @student.build_person
+    @student.person.phone_numbers.build
   end
 
   # GET /students/1/edit
   def edit
+    @student.person.phone_numbers.build
   end
 
   # POST /students or /students.json
@@ -77,13 +79,14 @@ class StudentsController < ApplicationController
         expect(student: [
                  :inst_id,
                  :catalog_year_id,
+                 # has_one relationship requires one bracket
                  person_attributes: [
-                   [
                      :first_name,
                      :last_name,
                      :date_of_birth,
                      :ssn,
                      :age,
+                     # has_many relationship requires two brackets
                      phone_numbers_attributes: [
                        [
                          :id,
@@ -91,9 +94,8 @@ class StudentsController < ApplicationController
                          :primary,
                          :active,
                          :_destroy # if true, destroy the object
-                       ]]
-                   ]],
+                       ] ]
+                   ] # end of person_attributes
                  ])
     end
-
 end

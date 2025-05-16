@@ -51,7 +51,7 @@ class PeopleController < ApplicationController
 
   # DELETE /people/1 or /people/1.json
   def destroy
-    #@person.destroy!
+    @person.destroy!
 
     respond_to do |format|
       format.html { redirect_to people_path, status: :see_other, notice: "Person was successfully destroyed." }
@@ -61,7 +61,7 @@ class PeopleController < ApplicationController
 
   # GET /people/render
   def visual
-    #used for CSS debuging
+    # used for CSS debuging
   end
 
   private
@@ -85,13 +85,13 @@ class PeopleController < ApplicationController
                  :date_of_birth,
                  :ssn,
                  :age,
-                 phone_numbers_attributes: [[
+                 phone_numbers_attributes: [ [ # many-to-many
                    :id,
                    :number,
                    :primary,
                    :active,
                    :_destroy # if true, destroy the object
-                 ]]
+                 ] ]
                ]
     end
 end

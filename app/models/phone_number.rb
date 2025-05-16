@@ -7,7 +7,7 @@ class PhoneNumber < ApplicationRecord
 
   validates :number, format: {
               with: /#{NUMBER_RE_STR}/,
-              message: 'phone numbers must be of the form (123)456-7890'
+              message: "phone numbers must be of the form (123)456-7890"
             }
 
   include MetaAttributes
@@ -15,5 +15,4 @@ class PhoneNumber < ApplicationRecord
   def number_pattern
     NUMBER_RE_STR
   end
-
 end

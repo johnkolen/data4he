@@ -1,3 +1,9 @@
 <%= ov_table_row student do %>
 <%= ov_col :inst_id %>
+<%= ov_with :person do %>
+<%=   ov_col :first_name %>
+<%=   ov_col :last_name %>
+<% end %>
+<%= ov_col :catalog_year %>
+
 <% end %>
