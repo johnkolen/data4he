@@ -113,6 +113,11 @@ body {
     font-weight: bold;
 }
 .ov-table-col {
+    form.ov-button {
+	display: inline;
+	padding-left: 5px;
+	padding-right: 5px;
+    }
     .ov-table-col-button {
 	display: inline;
 	.button_to {
@@ -121,6 +126,9 @@ body {
     }
 }
 .ov-button-row {
+    form.ov-button {
+	display: inline;
+    }
     .button_to {
 	display: inline;
     }

@@ -1,29 +1,16 @@
 module ApplicationHelper
-  def navigation(**options, &block)
-    brand = options.delete(:_brand)
-    tag.nav class: "navbar navbar-expand-lg navbar-light bg-light" do
-      tag.div class: "container-fluid" do
-        v1 = link_to(brand, root_path, class: "navbar-brand")
-        v2 = tag.div(class: "collase navbar-collapse") do
-          tag.ul class: "nav" do
-            options.map do |label, path|
-              tag.li(link_to(label, path, class: "nav-link active"))
-            end.join.html_safe
-          end
-        end
-        (v1 + v2).html_safe
-      end
-    end
-  end
+  include ObjectViewButtons
+  include ObjectViewNavigation
 
   def object_view(obj)
     @ov_obj = obj
   end
 
-  def ov_form(obj = nil, &block)
+  def ov_form(obj = nil, **options, &block)
     @ov_obj = obj || @ov_obj
     f = form_with(model: @ov_obj,
-                  class: "ov-form") do |form|
+                  class: "ov-form",
+                  **options) do |form|
       @ov_form = form
       capture &block
     end
@@ -38,7 +25,7 @@ module ApplicationHelper
     tag.div content, id: dom_id(@ov_obj), class: "ov-display"
   end
 
-  def ov_text_field(oattr)
+  def ov_text_field(oattr, **options)
     id = oattr
     tag.div(class: "ov-field") do
       [ tag.label(@ov_obj.send("#{oattr}_label"),
@@ -48,7 +35,25 @@ module ApplicationHelper
           @ov_form.text_field(oattr,
                               class: "form-control",
                               pattern: @ov_obj.send("#{oattr}_pattern"),
-                              id: id) :
+                              id: id,
+                              **options) :
+          tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
+      ].join.html_safe
+    end
+  end
+
+  def ov_password_field(oattr, **options)
+    id = oattr
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          @ov_form.password_field(oattr,
+                                  class: "form-control",
+                                  pattern: @ov_obj.send("#{oattr}_pattern"),
+                                  id: id,
+                                  **options) :
           tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
       ].join.html_safe
     end
@@ -186,78 +191,6 @@ module ApplicationHelper
     end
   end
 
-  def ov_show(obj = nil)
-    obj ||= @ov_obj
-    return if obj.is_a? Array
-    b=button_to "Show", polymorphic_path(obj),
-                method: :get,
-                class: "btn btn-primary"
-    tag.div(b, class: "ov-table-col-button")
-  end
-
-  def ov_edit(obj = nil)
-    obj ||= @ov_obj
-    return if obj.is_a? Array
-    b=button_to "Edit", edit_polymorphic_path(obj),
-                method: :get,
-                class: "btn btn-primary"
-    tag.div(b, class: "ov-table-col-button")
-  end
-
-  def ov_delete(obj = nil)
-    obj ||= @ov_obj
-    return if obj.is_a? Array
-    b=button_to "Delete",
-                polymorphic_path(obj),
-                method: :delete,
-                form: { data: { turbo_confirm: "Are you sure?" } },
-                class: "btn btn-danger"
-    tag.div(b, class: "ov-table-col-button")
-  end
-
-  def ov_new(klass)
-    return if klass.is_a? Array
-    button_to "New", new_polymorphic_path(klass),
-              method: :get,
-              class: "btn btn-primary"
-  end
-
-  def ov_index(klass)
-    button_to klass.to_s.pluralize,
-              polymorphic_path(klass),
-              method: :get,
-              class: "btn btn-primary"
-  end
-
-  def ov_add
-    button_class = [
-      "add-btn",
-      "add-#{@ov_obj.class.to_s.downcase}-btn",
-      "btn btn-primary"
-    ].join " "
-    @ov_new_record_found ||= @ov_obj.new_record?
-    tag.button "Add",
-               class: button_class,
-               type: "button",
-               data: { action: "click->ov-fields-for#add" }
-  end
-
-  def ov_remove(id)
-    button_class = [
-      "remove-btn",
-      "remove-#{@ov_obj.class.to_s.downcase}-btn",
-      "btn btn-danger"
-    ].join " "
-    (@ov_form.hidden_field("_destroy",
-                           class: "hdestroy",
-                           value: "true").gsub("_destroy", "DESTROY") +
-     tag.button("Remove",
-                class: button_class,
-                type: "button",
-                data: { action: "click->ov-fields-for#remove" },
-                "data-bs-toggle": "collapse",
-                "data-bs-target": "##{id}")).html_safe
-  end
 
   def ov_errors
     return nil unless @ov_obj && @ov_obj.errors.any?

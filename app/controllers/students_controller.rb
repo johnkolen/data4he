@@ -13,7 +13,7 @@ class StudentsController < ApplicationController
 
   # GET /students/new
   def new
-    @student = Student.new
+    @object = @student = Student.new
     @student.build_person
     @student.person.phone_numbers.build
   end
@@ -64,13 +64,7 @@ class StudentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_student
-      @student = Student.find(params.expect(:id))
-    end
-
-    def set_klass
-      @klass = Student
-      @klass_str = @klass.to_s
-      @klass_p_str = @klass.to_s.pluralize
+      @object = @student = Student.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.

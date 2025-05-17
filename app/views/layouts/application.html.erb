@@ -24,10 +24,20 @@
 
   <body>
     <div class="header">
+      <% if user_signed_in?
+	 login_sym = :"Log out"
+	 login_path = {path: destroy_user_session_path, method: :delete}
+	 else
+	 login_sym = :"Log in"
+	 login_path = new_user_session_path
+	 end
+	 %>
       <%= navigation _brand: image_tag("data4he.png", size: 90),
 	  People: people_path,
-	  Students: students_path
-	  %>
+	  Students: students_path,
+	  Users: users_path,
+	  login_sym => login_path
+      %>
     </div>
     <% if notice %>
     <div class="alert alert-success"><%= notice %></div>

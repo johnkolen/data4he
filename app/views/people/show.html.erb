@@ -1,7 +1,10 @@
-<p style="alert alert-primary"><%= notice %></p>
+<% content_for :title, "#{ @klass_str }>" %>
 
-<h1>Person</h1>
-<%= render @person %>
+<h1><%= @klass_str %></h1>
+
+<%= render  @object %>
+
+<br>
 
 <div class='ov-button-row'>
 <%= ov_edit @object %>

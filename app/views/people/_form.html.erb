@@ -1,12 +1,10 @@
 <%= ov_form person do %>
-<%=    ov_errors %>
-<%=    ov_text_field :first_name %>
-<%=    ov_text_field :last_name %>
-<%=    ov_date_field :date_of_birth %>
-<%=    ov_text_field :ssn %>
-<%=    ov_text_field :age %>
-<%= ov_fields_for :phone_numbers do |pnform| %>
-  <%= render partial: "phone_numbers/phone_numbers" %>
-<% end %>
-<%=    ov_submit %>
+<%= ov_errors %>
+<%= ov_text_field :first_name %>
+<%= ov_text_field :last_name %>
+<%= ov_date_field :date_of_birth %>
+<%= ov_text_field :ssn %>
+<%= ov_text_field :age %>
+<%= ov_fields_for :phone_numbers %>
+<%= ov_submit %>
 <% end %>

@@ -13,7 +13,7 @@ class PeopleController < ApplicationController
 
   # GET /people/new
   def new
-    @person = Person.new
+    @object = @person = Person.new
     @person.phone_numbers.build # used by Object View for template
   end
 
@@ -67,13 +67,7 @@ class PeopleController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_person
-      @person = Person.find(params.expect(:id))
-    end
-
-    def set_klass
-      @klass = Person
-      @klass_str = @klass.to_s
-      @klass_p_str = @klass.to_s.pluralize
+      @object = @person = Person.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.
