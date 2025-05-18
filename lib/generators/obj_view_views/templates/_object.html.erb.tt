@@ -1,0 +1,2 @@
+<%%= ov_display <%= name %> do %>
+<%% end %>

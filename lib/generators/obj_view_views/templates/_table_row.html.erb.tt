@@ -1,0 +1,2 @@
+<%%= ov_table_row <%= name %> do %>
+<%% end %>

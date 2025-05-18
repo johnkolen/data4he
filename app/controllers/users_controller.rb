@@ -2,6 +2,10 @@ class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy switch ]
   before_action :set_klass
 
+  def switch
+
+  end
+
   # GET /users or /users.json
   def index
     @objects = @users = User.all
