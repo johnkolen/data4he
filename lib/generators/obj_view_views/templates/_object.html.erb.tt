@@ -1,2 +1,15 @@
 <%%= ov_display <%= name %> do %>
+<% klass = eval(class_name) -%>
+<% klass.attribute_types.each do |attr, type| -%>
+<% next if attr == "id" -%>
+<% if type.type == :integer && klass.respond_to?(:fields_for?) && klass.fields_for?(attr) -%>
+<% if klass.is_dim? attr -%>
+  <%%= ov_select :<%= attr.sub("_id", "") -%> %>
+<% else -%>
+  <%%= ov_fields_for :<%= attr.sub("_id", "") -%> %>
+<% end -%>
+<% else -%>
+  <%%= ov_<%= type.type %>_field :<%= attr -%> %>
+<% end -%>
+<% end -%>
 <%% end %>

@@ -6,21 +6,31 @@ class Ability
   def initialize(user)
     can :read, Student
 
+    return unless user.present?
+
+    if user.person
+      can :read, user.person
+      can :update, user.person
+    end
+
     if user.registrar?
-      can :update, Student
+      can :manage, Student
+      can :manage, Person
       return
     end
 
     if user.student?
-      can :update, Student
+      p = user.person
+      raise "no person?" unless p
+      s = p.student
+      can :read, s
+      can :update, s
       return
     end
 
     return unless user.admin?
 
-    can :manage, User
-    can :manage, Person
-    can :manage, Student
+    can :manage, :all
 
     # Define abilities for the user here. For example:
     #

@@ -5,6 +5,8 @@ class Person < ApplicationRecord
   has_one :student,
           inverse_of: :person,
           dependent: :destroy
+  has_one :user,
+          inverse_of: :person
 
   accepts_nested_attributes_for :phone_numbers,
                                 update_only: true,  # allow partial updates

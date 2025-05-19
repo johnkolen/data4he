@@ -33,9 +33,9 @@
 	 end
 	 %>
       <%= navigation _brand: image_tag("data4he.png", size: 90),
-	  People: people_path,
-	  Students: students_path,
-	  Users: users_path,
+	  People: can?(:read, Person) && people_path,
+	  Students: can?(:read, Student) && students_path,
+	  Users: can?(:read, User) && users_path,
 	  login_sym => login_path
       %>
     </div>

@@ -1,4 +1,6 @@
 class PeopleController < ApplicationController
+  before_action :authenticate_user!
+
   before_action :set_person, only: %i[ show edit update destroy ]
   before_action :set_klass
 

@@ -37,4 +37,12 @@ module MetaAttributes
       super
     end
   end
+
+  module ClassMethods
+    def fields_for? x
+      return nil unless /(.*)_id$/ =~ x.to_s
+      a = reflect_on_association($1)
+      a.macro == :belongs_to || a.macro == :has_many
+    end
+  end
 end

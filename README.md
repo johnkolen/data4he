@@ -42,4 +42,10 @@ RAILS_ENV=test bin/rails db:migrate
 
 * Deployment instructions
 
-* ...
+* Odd Facts
+
+** CSS fails to load
+
+Sometimes CSS gets corrupted and will not load. Fix it with
+
+rails css:build

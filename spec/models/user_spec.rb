@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'cancan/matchers'
 
 RSpec.describe User, type: :model do
   before :each do
@@ -24,11 +25,35 @@ RSpec.describe User, type: :model do
   context 'roles' do
     context 'tests' do
       it 'admin?' do
-        @u.role_id = 1
+        @u.role_id = User::RoleAdmin
         expect(@u.admin?).to eq true
-        @u.role_id = 0
+        @u.role_id = User::RoleNone
         expect(@u.admin?).to eq false
       end
+    end
+  end
+
+  describe 'abilities' do
+    subject(:ability) { Ability.new(user) }
+    let(:user) { nil }
+    context "when admin" do
+      let(:user) { create :admin_user }
+      [Person, Student, User].each do |klass|
+        it { is_expected.to be_able_to(:manange, klass) }
+        it { is_expected.to be_able_to(:read, klass) }
+      end
+    end
+    context "when student" do
+      let(:user) {
+        s = create(:student)
+        puts s.inspect
+        create :user, person_id: s.person_id
+      }
+      let(:s1) { create(:student_1) }
+      let(:s) { s = Student.where(person_id: user.person_id).first }
+      it { is_expected.to be_able_to(:read, Student) }
+      it { is_expected.to be_able_to(:read, s) }
+      it { is_expected.not_to be_able_to(:read, s1) }
     end
   end
 end

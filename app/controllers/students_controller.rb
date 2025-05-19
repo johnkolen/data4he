@@ -1,10 +1,12 @@
 class StudentsController < ApplicationController
+  before_action :authenticate_user!
+
   before_action :set_student, only: %i[ show edit update destroy ]
   before_action :set_klass
 
   # GET /students or /students.json
   def index
-    @objects = @students = Student.all
+    @objects = @students = Student.all.select{|s| can? :read, s}
   end
 
   # GET /students/1 or /students/1.json

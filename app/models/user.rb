@@ -4,6 +4,9 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  belongs_to :person, inverse_of: :user, optional: true
+
+
   include MetaAttributes
 
   def add_builds!
@@ -56,6 +59,7 @@ class User < ApplicationRecord
     define_method "#{label.downcase}?" do
       role_id == id
     end
+    const_set "Role#{label}", id
   end
 
   def role_str

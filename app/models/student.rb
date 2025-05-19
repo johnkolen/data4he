@@ -8,7 +8,10 @@ class Student < ApplicationRecord
   validates :person, presence: true
   validates :catalog_year, presence: true
 
+  include Dims
   include MetaAttributes
+
+  dim :catalog_year
 
   def add_builds!
     build_person
