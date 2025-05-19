@@ -3,7 +3,8 @@ class UsersController < ApplicationController
   before_action :set_klass
 
   def switch
-
+    sign_in(:user, @user)
+    redirect_back(fallback_location: root_path)
   end
 
   # GET /users or /users.json

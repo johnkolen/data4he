@@ -9,7 +9,7 @@ module ObjectViewNavigation
               data: { "bs-toggle": "dropdown"}),
         tag.ul(class: "dropdown-menu") do
           User.all.map do |u|
-            tag.li(link_to(u.email, user_switch_path(u), href: "#", class: "dropdown-item"))
+            tag.li(link_to(u.email, switch_user_path(u), class: "dropdown-item"))
           end.join.html_safe
         end
       ].join.html_safe
