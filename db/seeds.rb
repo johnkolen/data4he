@@ -12,8 +12,8 @@
   AcademicYear.find_or_create_by!(year: "#{2020 + i}-#{2021 + i}")
 end
 
-[%w{admin@d4he.com admin! 0},
- %w{support@d4he.com support 1},
+[%w{admin@d4he.com admin! 1},
+ %w{support@d4he.com support 2},
  %w{recruiter@demo.edu recruiter 101},
  %w{registrar@demo.edu registrar 102},
  %w{student001@demo.edu student 103},
