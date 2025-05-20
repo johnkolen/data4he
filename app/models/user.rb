@@ -62,11 +62,23 @@ class User < ApplicationRecord
     const_set "Role#{label}", id
   end
 
+  def role_sym
+    ROLES[role_id].downcase.to_sym
+  end
+
   def role_str
     ROLES[role_id]
   end
 
   def role_options
     ROLES.map{|k,v| [v,k]}
+  end
+
+  def is_self? obj
+    return false unless person_id
+    return person_id == obj.id if obj.is_a? Person
+    return person_id == obj.person_id if obj.respond_to? :person_id
+    # TODO: obj might have person deeper than first level
+    return false
   end
 end
