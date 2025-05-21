@@ -8,6 +8,10 @@ class Student < ApplicationRecord
   validates :person, presence: true
   validates :catalog_year, presence: true
 
+  def user
+    User.where(person_id: person_id).first
+  end
+
   include Dims
   include MetaAttributes
 
