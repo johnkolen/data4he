@@ -87,5 +87,54 @@ RSpec.describe AccessBase, type: :model do
         expect(n.through Student, :role, :kind, :allow).to be_a AccessBase::Node
       end
     end
+
+    class ATest < AccessBase
+      define_access :view
+    end
+    context "allow" do
+      it "allows simple" do
+        class A001 < ATest
+        end
+        A001.allow :view, Student, :admin
+        expect(A001.allow? Student, :view, :admin).to eq true
+        expect(A001.allow? Person, :view, :admin).to eq false
+      end
+      it "allows combined access" do
+        class A002 < ATest
+          define_access :edit
+          define_access :both, [:edit, :view]
+        end
+        A002.allow :both, Student, :admin
+        expect(A002.allow? Student, :edit, :admin).to eq true
+        expect(A002.allow? Student, :view, :admin).to eq true
+        expect(A002.allow? Person, :view, :admin).to eq false
+        expect(A002.allow? Person, :edit, :admin).to eq false
+      end
+      it "allows combined roles" do
+        class A003 < ATest
+        end
+        A003.allow :view, Student, [:admin, :support]
+        expect(A003.allow? Student, :view, :admin).to eq true
+        expect(A003.allow? Student, :view, :support).to eq true
+        expect(A003.allow? Student, :view, :hr).to eq false
+        expect(A003.allow? Person, :view, :admin).to eq false
+        expect(A003.allow? Person, :edit, :support).to eq false
+      end
+      it "allows nested" do
+        class A004 < ATest
+        end
+        A004.allow :view, Student, :admin do
+          A004.allow :view, Person, :admin
+        end
+        r1 = nil
+        r0 = A004.allow? Student, :view, :admin do
+          r1 = A004.allow? Person, :view, :admin
+          r2 = A004.allow? User, :view, :admin
+        end
+        expect(r0).to eq true
+        expect(r1).to eq true
+        expect(r2).to eq false
+      end
+    end
   end
 end

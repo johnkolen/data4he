@@ -12,8 +12,8 @@ class Access < AccessBase
   allow :index, Person, :admin
   allow :index, Student, :admin
 
-  allow :view, AccessRoot, :support
-  allow :manage, AccessRoot, :admin
+  allow :view, Root, :support
+  allow :manage, Root, :admin
 
   allow :access,
         Student,

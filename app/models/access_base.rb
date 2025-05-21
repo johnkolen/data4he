@@ -9,51 +9,54 @@ class AccessBase
     end
   end
 
-    class Mapper
-      def initialize
-        @map = {}
-      end
-      def add key, child=nil
-        if key.is_a? Array
-          key.each do |k|
-            add key, child
-          end
-        else
-          @map[key] = child
-        end
-        child
-      end
-      def member? key
-        @map.member? key
-      end
-      def empty?
-        @map.empty?
-      end
-      def [] key
-        @map[key]
-      end
-      def through *keys
-        t = @map[keys.first]
-        return t if t.nil?
-        keys.shift
-        return t if t.is_a? Node
-        t.through *keys
-      end
-      def tree_str indent=""
-        return "" if empty?
-        out = []
-        @map.each do |key, value|
-          out << "#{indent}#{key}"
-          if value.respond_to? :tree_str
-            x = value.tree_str("#{indent}  ")
-            out << x unless x.empty?
-          else
-            out << "#{indent}#{value.inspect}"
-          end
-        end
-        out.join("\n")
-      end
+  class Root
+  end
+
+  class Mapper
+    def initialize
+      @map = {}
     end
+    def add key, child=nil
+      if key.is_a? Array
+        key.each do |k|
+          add key, child
+        end
+      else
+        @map[key] = child
+      end
+      child
+    end
+    def member? key
+      @map.member? key
+    end
+    def empty?
+      @map.empty?
+    end
+    def [] key
+      @map[key]
+    end
+    def through *keys
+      t = @map[keys.first]
+      return t if t.nil?
+      keys.shift
+      return t if t.is_a? Node
+      t.through *keys
+    end
+    def tree_str indent=""
+      return "" if empty?
+      out = []
+      @map.each do |key, value|
+        out << "#{indent}#{key}"
+        if value.respond_to? :tree_str
+          x = value.tree_str("#{indent}  ")
+          out << x unless x.empty?
+        else
+          out << "#{indent}#{value.inspect}"
+        end
+      end
+      out.join("\n")
+    end
+  end
 
   class Node < Mapper
     class ADX < Mapper
@@ -176,7 +179,8 @@ class AccessBase
     role ||= user.role_sym
     hold = @node
     @node ||= @@root
-    if @node == @@root && @node.allow?(AccessRoot, label, role)
+    puts @node
+    if @node == @@root && @node.allow?(Root, label, role)
       if block_given?
         yield
       end
@@ -196,6 +200,7 @@ class AccessBase
     end
     if block_given?
       @node = @node.through resource, role, label
+      puts "  #{@node.inspect}"
       hold_self = @last_self
       @last_self = resource_obj if role == :self
       yield
