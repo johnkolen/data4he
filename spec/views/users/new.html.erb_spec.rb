@@ -1,9 +1,10 @@
 require 'rails_helper'
+require_relative "../controller_setup"
 
 RSpec.describe "users/new", type: :view do
-  before(:each) do
-    assign(:user, User.new())
-  end
+  include ControllerSetup
+  classSetup object: :build_student_user,
+             user: :admin_user
 
   it "renders new user form" do
     render

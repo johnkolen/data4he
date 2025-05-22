@@ -77,4 +77,10 @@ RSpec.configure do |config|
   config.before(:each) { DatabaseCleaner.start }
   config.before(:each) { DatabaseCleaner.clean }
   config.include FactoryBot::Syntax::Methods
+  config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::ControllerHelpers, type: :view
+  #config.include Devise::Test::Helpers, type: :request
+  #config.include Devise::Test::Helpers, type: :system
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :system
 end

@@ -1,26 +1,20 @@
 require 'rails_helper'
+require_relative "../controller_setup"
 
 RSpec.describe "students/index", type: :view do
-  before(:each) do
-    assign(:students, [
-      Student.create!(
-        inst_id: "Inst",
-        person: nil,
-        catalog_year: nil
-      ),
-      Student.create!(
-        inst_id: "Inst",
-        person: nil,
-        catalog_year: nil
-      )
-    ])
-  end
+  include ControllerSetup
+  classSetup object: [
+               :create_student,
+               :create_student_1
+             ],
+             user: :admin_user
 
   it "renders a list of students" do
     render
+
     cell_selector = 'div>p'
-    assert_select cell_selector, text: Regexp.new("Inst".to_s), count: 2
-    assert_select cell_selector, text: Regexp.new(nil.to_s), count: 2
-    assert_select cell_selector, text: Regexp.new(nil.to_s), count: 2
+    objects.each do |obj|
+      expect(rendered).to match(/#{obj.inst_id}/)
+    end
   end
 end
