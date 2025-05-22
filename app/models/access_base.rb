@@ -63,7 +63,7 @@ class AccessBase
           out << "#{indent}#{value.inspect}"
         end
       end
-      out.join("\n")
+      out.join("\n").gsub(/\n\s+(allow|deny)/m, ': \1')
     end
   end
 
@@ -240,11 +240,11 @@ class AccessBase
       if role == :self
         case resource
         when Symbol  # its an attribute
-          return false unless user.is_self?(@last_obj)
+          return false unless user && user.is_self?(@last_obj)
         when Class  # classes can't be people
           return false
         else
-          return false unless user.is_self?(resource)
+          return false unless user && user.is_self?(resource)
           @last_obj = resource
         end
       else
@@ -270,13 +270,13 @@ class AccessBase
     hold = @node
     @node ||= root
     begin
-      role ||= user.role_sym
+      role ||= user && user.role_sym
+      raise "cain" unless role
       # allow argument order changes to match node's unwinding of args
-      if false
       return true if @node == root &&
                      _allow?(Root, role, label, &block)
-      end
-      return _allow? resource, role, label, &block
+      return true if _allow?(resource, role, label, &block)
+      return _allow? resource, :self, label, &block
     ensure
       @node = hold
     end

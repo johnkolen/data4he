@@ -33,4 +33,16 @@ RSpec.describe User, type: :model do
     end
   end
 
+  context 'is self' do
+    before :all do
+      @u = create(:user)
+      @v = create(:student_user)
+    end
+    it 'from same user' do
+      expect(@u.is_self? @u).to eq true
+    end
+    it 'from other user' do
+      expect(@u.is_self? @v).to eq false
+    end
+  end
 end

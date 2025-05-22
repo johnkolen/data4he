@@ -75,6 +75,7 @@ class User < ApplicationRecord
   end
 
   def is_self? obj
+    return true if self.id == obj.id && obj.class == self.class
     return false unless person_id
     return person_id == obj.id if obj.is_a? Person
     return person_id == obj.person_id if obj.respond_to? :person_id

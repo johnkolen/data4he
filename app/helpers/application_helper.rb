@@ -250,7 +250,10 @@ module ApplicationHelper
     r.macro == :belongs_to && r.inverse_of.macro == :has_one
   end
 
-  def ov_fields_for(oattr, &block)
+  def ov_fields_for(oattr, **options, &block)
+    if options[:if] == :exists
+      return nil unless @ov_obj.send(oattr)
+    end
     return ov_fields_for_view oattr unless @ov_form
     hold = [ @ov_form, @ov_obj, @ov_elem ]
     out = []

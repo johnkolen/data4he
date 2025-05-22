@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Access, type: :model do
 
-  def self.build_ad resource,
+  def self.bulk_ad resource,
                     labels,
                     **outcomes
     outcomes.each do |tgt, roles|
@@ -17,31 +17,56 @@ RSpec.describe Access, type: :model do
     end
   end
 
-  context 'Root' do
-    build_ad Access::Root,
+  context 'Root bulk' do
+    bulk_ad Access::Root,
+             [:view, :edit, :delete, :index ],
+             true => [:admin],
+             false => [:badhat]
+    bulk_ad Student,
              [:view, :edit, :delete, :index ],
              true => [:admin],
              false => [:badhat]
   end
 
-  context 'Student' do
-    build_ad Student,
+  context 'Student bulk' do
+    bulk_ad Student,
              [:view, :edit ],
              true => [:administration, :registrar, :student],
              false => [:badhat]
-    build_ad Student,
+    bulk_ad Student,
              [:index],
              true => [:admin, :administration, :registrar],
              false => [:student, :badhat]
   end
 
+  context 'Student' do
+    before :all do
+      @s = create(:student)
+      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
+    end
+    after :all do
+      @s.delete
+      @u.destroy
+    end
+    it "with default user" do
+      Access.user = @u
+      expect(Access.allow?(Student, :edit)).to eq true
+      Access.user = nil
+    end
+  end
+
   context 'Person' do
     before :all do
       @s = create(:student)
-      @u = create(:user, person_id: @s.person_id)
+      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
       expect(@u).not_to be_nil
       @o = create(:student_1)
       Access.user = @u
+    end
+    after :all do
+      @s.delete
+      @u.destroy
+      @o.destroy
     end
     context "self" do
       it 'edit' do
@@ -57,6 +82,24 @@ RSpec.describe Access, type: :model do
         expect(Access.allow? :ssn, :edit, :self).to eq false
       end
       expect(r).to eq true
+    end
+  end
+  context 'User' do
+    before :all do
+      @s = create(:student)
+      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
+      expect(@u).not_to be_nil
+      @o = create(:student_1)
+      Access.user = @u
+    end
+    after :all do
+      @s.delete
+      @u.destroy
+      @o.destroy
+    end
+    it "recognize self" do
+      puts Access.user.inspect
+      Access.allow? Access.user, :edit
     end
   end
 end

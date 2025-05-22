@@ -33,9 +33,9 @@
 	 end
 	 %>
       <%= navigation _brand: image_tag("data4he.png", size: 90),
-	  People: Access.allow?(:index, Person, :admin) && people_path,
-	  Students: Access.allow?(:index, Student) && students_path,
-	  Users: can?(:read, User) && users_path,
+	  People: current_user && Access.allow?(Person, :index) && people_path,
+	  Students: current_user && Access.allow?(Student, :index) && students_path,
+	  Users: current_user && Access.allow?(User, :index) && users_path,
 	  login_sym => login_path
       %>
     </div>

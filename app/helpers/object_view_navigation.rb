@@ -43,10 +43,16 @@ module ObjectViewNavigation
             lis.join.html_safe
           end
         end
-        email = user_signed_in? ? current_user.email : nil
-        v3 = tag.div email, class: "ov-nav-username"
+        if user_signed_in?
+          email = user_signed_in? ? current_user.email : nil
+          v3 = link_to current_user.email,
+                       profile_user_path(current_user),
+                       class: "ov-nav-username"
 
-        (v1 + v2 + v3).html_safe
+          (v1 + v2 + v3).html_safe
+        else
+          (v1 + v2).html_safe
+        end
       end
     end
   end

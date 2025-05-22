@@ -1,17 +1,39 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
 
-  before_action :set_user, only: %i[ show edit update destroy switch ]
-  before_action :set_klass
+  before_action :set_user,
+                only: %i[show edit update destroy switch profile edit_profile update_profile]
 
   def switch
     sign_in(:user, @user)
+    set_access_user
     redirect_back(fallback_location: root_path)
+  end
+
+  # GET /users/1/profile
+  def profile
+  end
+
+  # GET /users/1/edit_profile
+  def edit_profie
+  end
+
+  # PATCH/PUT /users/1 or /users/1.json
+  def update_profile
+    respond_to do |format|
+      if @user.update(profile_params)
+        format.html { redirect_to @user, notice: "User was successfully updated." }
+        format.json { render :show, status: :ok, location: profile_user_path(@user) }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   # GET /users or /users.json
   def index
-    @objects = @users = User.all
+    @objects = @users = User.all.select{|s| Access.allow? s, :view}
   end
 
   # GET /users/1 or /users/1.json
@@ -79,6 +101,31 @@ class UsersController < ApplicationController
                   :role_id,
                   :password,
                   :password_confirmation
+                ]
+    end
+    def profile_params
+      params.
+        expect! user: [
+                  :email,
+                  :role_id,
+                  :password,
+                  :password_confirmation,
+                  person_attributes: [
+                     :first_name,
+                     :last_name,
+                     :date_of_birth,
+                     :ssn,
+                     :age,
+                     # has_many relationship requires two brackets
+                     phone_numbers_attributes: [
+                       [
+                         :id,
+                         :number,
+                         :primary,
+                         :active,
+                         :_destroy # if true, destroy the object
+                       ] ]
+                  ]
                 ]
     end
 end

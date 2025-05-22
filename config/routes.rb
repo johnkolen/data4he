@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   resources :users do
     member do
       get "switch"
+      get "profile"
+      get "edit_profile"
+      patch "update_profile"
     end
   end
   resources :students

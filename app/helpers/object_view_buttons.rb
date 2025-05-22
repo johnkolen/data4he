@@ -8,41 +8,52 @@ module ObjectViewButtons
               class: options[:class] || "btn btn-primary"
   end
 
-  def ov_edit(obj = nil)
+  def ov_edit(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
+    return unless Access.allow? obj, :edit
     ov_button_to "Edit",
-                 edit_polymorphic_path(obj)
+                 options[:path] || edit_polymorphic_path(obj),
+                 **options
   end
 
-  def ov_show(obj = nil)
+  def ov_show(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
+    return unless Access.allow? obj, :view
     ov_button_to "Show",
-                 polymorphic_path(obj)
+                 polymorphic_path(obj),
+                 **options
   end
 
-  def ov_delete(obj = nil)
+  def ov_delete(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
+    return unless Access.allow? obj, :delete
     ov_button_to "Delete",
                  polymorphic_path(obj),
-                 method: :delete,
+                 method: options[:method] || :delete,
                  form: { data: { turbo_confirm: "Are you sure?" } },
-                 class: "btn btn-danger"
-  end
+                 class: options[:class] || "btn btn-danger"
+    end
 
-  def ov_new(klass)
+  def ov_new(klass, **options)
+    return unless Access.allow? klass, :create
     return if klass.is_a? Array
-    ov_button_to "New", new_polymorphic_path(klass)
+    ov_button_to "New",
+                 new_polymorphic_path(klass),
+                 **options
   end
 
-  def ov_index(klass)
+  def ov_index(klass, **options)
+    return unless Access.allow? klass, :index
     ov_button_to klass.to_s.pluralize,
-                 polymorphic_path(klass)
+                 polymorphic_path(klass),
+                 **options
   end
 
   def ov_add
+    return unless Access.allow? @ov_obj, :edit
     button_class = [
       "add-btn",
       "add-#{@ov_obj.class.to_s.downcase}-btn",
@@ -56,6 +67,7 @@ module ObjectViewButtons
   end
 
   def ov_remove(id)
+    return unless Access.allow? @ov_obj, :edit
     button_class = [
       "remove-btn",
       "remove-#{@ov_obj.class.to_s.downcase}-btn",
@@ -71,5 +83,4 @@ module ObjectViewButtons
                 "data-bs-toggle": "collapse",
                 "data-bs-target": "##{id}")).html_safe
   end
-
 end
