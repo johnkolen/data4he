@@ -13,19 +13,20 @@ RSpec.describe Ability, type: :model do
   end
 
   context "when student" do
-    let(:user) {
-      s = create(:student)
-      puts s.inspect
-      create :user, role_id: User::RoleStudent, person_id: s.person_id
-    }
-    #let(:s1) { create(:student_1) }
+    before :all do
+      @s = create(:student)
+      @u = create :user, role_id: User::RoleStudent, person_id: @s.person_id
+    end
+    after :all do
+      @s.delete
+      @u.destroy
+    end
+    let(:user) { @u }
     let(:s) { Student.where(person_id: user.person_id).first }
     it { is_expected.to be_able_to(:read, Student) }
     it { is_expected.to be_able_to(:read, s) }
     it {
-      puts user.person_id
       s1 = create(:student_1)
-      puts s1.id
       is_expected.not_to be_able_to(:read, s1)
     }
   end

@@ -24,20 +24,13 @@ RSpec.describe "/students", type: :request do
   # Student. As you add validations to Student, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    {"inst_id"=>"9xxx",
-     "person_attributes"=>{
-       "first_name"=>"stu",
-       "last_name"=>"dent",
-       "date_of_birth"=>"2025-05-05",
-       "ssn"=>"873-18-0932",
-       "age"=>"33",
-       "phone_numbers_attributes"=>{
-         "0"=>{"number"=>"(850)603-9985", "primary"=>"1", "active"=>"1"}}},
-     "catalog_year_id"=>@academic_year.id}
+    build(:student, catalog_year: @academic_year).to_params
   }
 
   let(:invalid_attributes) {
-    {"inst_id"=>"9xxx", "person_attributes"=>{"first_name"=>"stu", "last_name"=>"dent", "date_of_birth"=>"2025-05-05", "ssn"=>"873180932", "age"=>"33", "phone_numbers_attributes"=>{"0"=>{"number"=>"(850)603-9985", "primary"=>"1", "active"=>"1"}}}, "catalog_year_id"=>"4"}
+    h = build(:student).to_params
+    h["person_attributes"]["ssn"] = "123"
+    h
   }
 
   describe "GET /index" do
@@ -107,19 +100,22 @@ RSpec.describe "/students", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        {"inst_id"=>"333",
-         "person_attributes" =>{"first_name"=>"Xubi",
-                                "last_name"=>"Xdubi"}
-        }
+        h = valid_attributes
+        h["inst_id"] = "99999"
+        h["person_attributes"]["first_name"] = "Kubi"
+        h["person_attributes"]["last_name"] = "Kdubi"
+        h
       }
 
       it "updates the requested student" do
         student = Student.create! valid_attributes
         patch student_url(student), params: { student: new_attributes }
         student.reload
-        expect(student.inst_id).to eq "333"
-        expect(student.person.first_name).to eq "Xubi"
-        expect(student.person.last_name).to eq "Xdubi"
+        expect(response).to redirect_to(student_url(student))
+        expect(student.inst_id).to eq new_attributes["inst_id"]
+        expect(student.person.first_name).to eq "Kubi"
+        expect(student.person.last_name).to eq "Kdubi"
+        student.destroy
       end
 
       it "redirects to the student" do
@@ -127,6 +123,7 @@ RSpec.describe "/students", type: :request do
         patch student_url(student), params: { student: new_attributes }
         student.reload
         expect(response).to redirect_to(student_url(student))
+        student.destroy
       end
     end
 

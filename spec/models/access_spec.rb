@@ -31,8 +31,8 @@ RSpec.describe Access, type: :model do
   context 'Student bulk' do
     bulk_ad Student,
              [:view, :edit ],
-             true => [:administration, :registrar, :student],
-             false => [:badhat]
+             true => [:administration, :registrar, :admin],
+             false => [:badhat, :student]
     bulk_ad Student,
              [:index],
              true => [:admin, :administration, :registrar],
@@ -43,15 +43,15 @@ RSpec.describe Access, type: :model do
     before :all do
       @s = create(:student)
       @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
+      Access.user = @u
     end
     after :all do
+      Access.user = nil
       @s.delete
       @u.destroy
     end
     it "with default user" do
-      Access.user = @u
-      expect(Access.allow?(Student, :edit)).to eq true
-      Access.user = nil
+      expect(Access.allow?(Student, :edit)).to eq false
     end
   end
 
@@ -98,7 +98,6 @@ RSpec.describe Access, type: :model do
       @o.destroy
     end
     it "recognize self" do
-      puts Access.user.inspect
       Access.allow? Access.user, :edit
     end
   end

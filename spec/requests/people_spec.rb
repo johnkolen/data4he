@@ -13,39 +13,25 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/people", type: :request do
+  classSetup user: :admin_user
 
   # This should return the minimal set of attributes required to create a valid
   # Person. As you add validations to Person, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    {"first_name"=>"Ubi",
-     "last_name"=>"Dubi",
-     "date_of_birth"=>"2025-05-02",
-     "ssn"=>"920-82-1111",
-     "age"=>"33",
-     "phone_numbers_attributes"=>{
-       "0"=>{"number"=>"(850)603-9985",
-             "primary"=>"1",
-             "active"=>"0"}}}
+    build(:person).to_params
   }
 
   let(:invalid_attributes) {
-    {"first_name"=>"Ibu",
-     "last_name"=>"Ibud",
-     "date_of_birth"=>"2025-05-02",
-     "ssn"=>"92082111",
-     "age"=>"33",
-     "phone_numbers_attributes"=>{
-       "0"=>{"number"=>"(850)603-9985",
-             "primary"=>"1",
-             "active"=>"0"}}}
+    build(:person).to_params ssn: "9208211"  # bad param
   }
 
   describe "GET /index" do
     it "renders a successful response" do
-      Person.create! valid_attributes
+      p = Person.create! valid_attributes
       get people_url
       expect(response).to be_successful
+      p.destroy
     end
   end
 
@@ -54,6 +40,7 @@ RSpec.describe "/people", type: :request do
       person = Person.create! valid_attributes
       get person_url(person)
       expect(response).to be_successful
+      person.destroy
     end
   end
 
@@ -69,6 +56,7 @@ RSpec.describe "/people", type: :request do
       person = Person.create! valid_attributes
       get edit_person_url(person)
       expect(response).to be_successful
+      person.destroy
     end
   end
 

@@ -15,7 +15,6 @@ RSpec.describe ApplicationHelper, type: :helper do
     s = Student.new
     s.build_person
     helper.set_ov_obj s
-    puts s.send(:person).inspect
     expect(helper.ov_one_to_one? :person).to be true
   end
 end

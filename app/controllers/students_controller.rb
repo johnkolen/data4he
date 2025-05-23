@@ -63,6 +63,30 @@ class StudentsController < ApplicationController
     end
   end
 
+  def self.student_params
+    [
+      :inst_id,
+      :catalog_year_id,
+      # has_one relationship requires one bracket
+      person_attributes: [
+        :first_name,
+        :last_name,
+        :date_of_birth,
+        :ssn,
+        :age,
+        # has_many relationship requires two brackets
+        phone_numbers_attributes: [
+          [
+            :id,
+            :number,
+            :primary,
+            :active,
+            :_destroy # if true, destroy the object
+          ] ]
+      ] # end of person_attributes
+    ]
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_student
@@ -72,26 +96,6 @@ class StudentsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def student_params
       params.
-        expect(student: [
-                 :inst_id,
-                 :catalog_year_id,
-                 # has_one relationship requires one bracket
-                 person_attributes: [
-                     :first_name,
-                     :last_name,
-                     :date_of_birth,
-                     :ssn,
-                     :age,
-                     # has_many relationship requires two brackets
-                     phone_numbers_attributes: [
-                       [
-                         :id,
-                         :number,
-                         :primary,
-                         :active,
-                         :_destroy # if true, destroy the object
-                       ] ]
-                   ] # end of person_attributes
-                 ])
+        expect(student: self.class.student_params)
     end
 end

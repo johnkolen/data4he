@@ -42,6 +42,11 @@ RSpec.describe Person, type: :model do
     expect(q.phone_numbers[0].number).to eq '(123)456-9876'
   end
 
+  it 'generates parameters' do
+    h = build(:person).to_params
+    expect(h).to be_a Hash
+  end
+
   it 'destroys nested attributes' do
     params = {first_name: 'Alex',
                    last_name: 'Alpha',
@@ -67,7 +72,6 @@ RSpec.describe Person, type: :model do
     expect {
       expect {
         p.update(params)
-        puts p.errors.inspect
       }.to change{Person.count}.by(0)
     }.to change{PhoneNumber.count}.by(-1)
   end

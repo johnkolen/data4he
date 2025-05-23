@@ -1,25 +1,29 @@
 module ControllerSetup
   def controllerSetup obj, objs
-    return unless obj || objs
-    @klass = eval(controller.controller_path.classify)
-    @klass_str = @klass.to_s
-    @klass_sym = @klass.to_s.downcase.to_sym
-    @klass_p_str = @klass.to_s.pluralize
+    #return unless obj || objs
+    if controller
+      @klass = eval(controller.controller_path.classify)
+      @klass_str = @klass.to_s
+      @klass_sym = @klass.to_s.downcase.to_sym
+      @klass_p_str = @klass.to_s.pluralize
+    end
 
     if obj
-      assign(@klass_sym, obj)
+      assign(@klass_sym, obj) if @klass_sym
       assign(:object, obj)
     end
 
     if objs
-      assign(@klass_sym.to_s.pluralize.to_sym, objs)
+      assign(@klass_sym.to_s.pluralize.to_sym, objs) if @klass_sym
       assign(:objects, objs)
     end
 
-    assign(:klass, @klass)
-    assign(:klass_str, @klass_str)
-    assign(:klass_sym, @klass_sym)
-    assign(:klass_p_str, @klass_p_str)
+    if @klass
+      assign(:klass, @klass)
+      assign(:klass_str, @klass_str)
+      assign(:klass_sym, @klass_sym)
+      assign(:klass_p_str, @klass_p_str)
+    end
   end
 
   def accessSetup user_sym

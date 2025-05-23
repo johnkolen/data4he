@@ -20,6 +20,7 @@ RSpec.describe User, type: :model do
                  password_confirmation: "12345678"
     u.save!
     expect(u.persisted?).to eq true
+    u.destroy
   end
 
   context 'roles' do
@@ -37,6 +38,10 @@ RSpec.describe User, type: :model do
     before :all do
       @u = create(:user)
       @v = create(:student_user)
+    end
+    after :all do
+      @u.destroy
+      @v.destroy
     end
     it 'from same user' do
       expect(@u.is_self? @u).to eq true

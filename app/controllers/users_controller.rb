@@ -3,6 +3,7 @@ class UsersController < ApplicationController
 
   before_action :set_user,
                 only: %i[show edit update destroy switch profile edit_profile update_profile]
+  before_action :set_klass
 
   def switch
     sign_in(:user, @user)
@@ -87,6 +88,40 @@ class UsersController < ApplicationController
     end
   end
 
+  def self.user_params
+    [
+      :email,
+      :role_id,
+      :password,
+      :password_confirmation
+    ]
+  end
+
+  def self.user_profile_params
+    [
+      :email,
+      :role_id,
+      :password,
+      :password_confirmation,
+      person_attributes: [
+        :first_name,
+        :last_name,
+        :date_of_birth,
+        :ssn,
+        :age,
+        # has_many relationship requires two brackets
+        phone_numbers_attributes: [
+          [
+            :id,
+            :number,
+            :primary,
+            :active,
+            :_destroy # if true, destroy the object
+          ] ]
+      ]
+    ]
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
@@ -96,36 +131,11 @@ class UsersController < ApplicationController
     # Only allow a list of trusted parameters through.
     def user_params
       params.
-        expect! user: [
-                  :email,
-                  :role_id,
-                  :password,
-                  :password_confirmation
-                ]
+        expect! user: self.class.user_params
     end
+
     def profile_params
       params.
-        expect! user: [
-                  :email,
-                  :role_id,
-                  :password,
-                  :password_confirmation,
-                  person_attributes: [
-                     :first_name,
-                     :last_name,
-                     :date_of_birth,
-                     :ssn,
-                     :age,
-                     # has_many relationship requires two brackets
-                     phone_numbers_attributes: [
-                       [
-                         :id,
-                         :number,
-                         :primary,
-                         :active,
-                         :_destroy # if true, destroy the object
-                       ] ]
-                  ]
-                ]
+        expect! user: self.class.user_profile_params
     end
 end

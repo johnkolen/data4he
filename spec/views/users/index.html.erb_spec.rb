@@ -3,7 +3,7 @@ require_relative "../controller_setup"
 
 RSpec.describe "users/index", type: :view do
   include ControllerSetup
-  classSetup object: [
+  classSetup objects: [
                :create_student_user,
                :create_student_user_1
              ],

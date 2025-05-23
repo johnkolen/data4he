@@ -8,6 +8,6 @@ RSpec.describe "users/show", type: :view do
 
   it "renders attributes in <p>" do
     render
-    expect(rendered).to match(/#{object.email}/)
+    expect(rendered).to match(/#{s_object.email}/)
   end
 end
