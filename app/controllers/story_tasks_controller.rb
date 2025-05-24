@@ -1,8 +1,9 @@
 class StoryTasksController < ApplicationController
   before_action :set_story_task,
-                only: %i[ show edit update destroy to_to_do to_active to_blocked to_finished edit_form]
+                only: %i[ show edit update destroy to_to_do to_active to_blocked to_finished]
 
   before_action :set_klass
+  before_action :set_turbo, only: %i[ show edit update ]
 
   # GET /story_tasks or /story_tasks.json
   def index
@@ -37,12 +38,6 @@ class StoryTasksController < ApplicationController
     @story_task.add_builds!
   end
 
-  # GET /story_tasks/1/edit_form
-  def edit_form
-    @story_task.add_builds!
-    render partial: "form", locals: {story_task: @story_task}
-  end
-
   # POST /story_tasks or /story_tasks.json
   def create
     @object = @story_task = StoryTask.new(story_task_params)
@@ -62,10 +57,15 @@ class StoryTasksController < ApplicationController
   def update
     respond_to do |format|
       if @story_task.update(story_task_params)
-        format.html { redirect_to @story_task, notice: "Story task was successfully updated." }
+        format.html {
+          redirect_to story_task_path(@story_task, params: @tfp),
+                      notice: "Story task was successfully updated." }
         format.json { render :show, status: :ok, location: @story_task }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html {
+          render :edit,
+                 status: :unprocessable_entity
+        }
         format.json { render json: @story_task.errors, status: :unprocessable_entity }
       end
     end

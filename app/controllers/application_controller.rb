@@ -13,4 +13,10 @@ class ApplicationController < ActionController::Base
   def set_access_user
     Access.user = current_user
   end
+
+  def set_turbo
+    @turbo = params[:tf]
+    @tfp = @turbo ? {tf: params[:tf]} : {}
+  end
+
 end

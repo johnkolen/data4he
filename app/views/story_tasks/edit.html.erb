@@ -1,13 +1,16 @@
+<% content = render "form", @klass_sym => @object %>
+<%= ov_modal_objects_view @klass, content, @turbo do %>
 <% content_for :title, "Editing #{ @klass_str }" %>
 
 <h1>Editing <%= @klass_str %></h1>
 
-<%= render "form", @klass_sym => @object %>
+<%= content %>
 
 <br>
 
 <div class='ov-button-row'>
-<%= ov_show @object %>
-<%= ov_index @klass %>
-<%= ov_delete @object %>
+  <%= ov_show @object %>
+  <%= ov_index @klass %>
+  <%= ov_delete @object %>
 </div>
+<% end %>

@@ -8,7 +8,13 @@
        [StoryTask::StatusBlocked, to_blocked_story_task_path(task)],
        [StoryTask::StatusFinished, to_finished_story_task_path(task)]].each do |status_id, path| %>
     <% if status_id == task.status_id %>
-        <%= ov_edit task %>
+  <button type="button" class="btn btn-primary"
+	  data-bs-toggle="modal" data-bs-target="#ov-modal"
+	  data-id=<%=task.id%>
+	  data-object-action="view"
+	  data-action="click->modal-object#fill">
+    View
+    </button>
     <% else %>
       <%= ov_button_to StoryTask.status_str(status_id), path, method: :patch, class: "btn btn-secondary" %>
     <% end %>

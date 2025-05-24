@@ -13,6 +13,7 @@ module ApplicationHelper
   def ov_form(obj = nil, **options, &block)
     @ov_obj = obj || @ov_obj
     f = form_with(model: @ov_obj,
+      url: polymorphic_path(@ov_obj, params: {tf: true}),
                   class: "ov-form",
                   **options) do |form|
       @ov_form = form
