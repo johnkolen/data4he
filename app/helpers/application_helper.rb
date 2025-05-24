@@ -12,8 +12,12 @@ module ApplicationHelper
 
   def ov_form(obj = nil, **options, &block)
     @ov_obj = obj || @ov_obj
+    p = {}
+    if options[:turbo]
+      p = { tf: 1 }
+    end
     f = form_with(model: @ov_obj,
-      url: polymorphic_path(@ov_obj, params: {tf: true}),
+      url: polymorphic_path(@ov_obj, params: p),
                   class: "ov-form",
                   **options) do |form|
       @ov_form = form
@@ -119,11 +123,11 @@ module ApplicationHelper
     id = oattr
     s_class = "form-select ov-select"
     mthd = "#{oattr}_id".to_sym
-    #raise @ov_form.object.send(mthd).inspect
-    #raise @ov_obj.send(mthd).inspect
+    # raise @ov_form.object.send(mthd).inspect
+    # raise @ov_obj.send(mthd).inspect
     opts = options_for_select(@ov_obj.send("#{oattr}_options"),
                               selected: @ov_obj.send(mthd))
-    #raise @ov_form.select(mthd,
+    # raise @ov_form.select(mthd,
     #                      opts,
     #                      {},
     #                      { class: s_class }).inspect

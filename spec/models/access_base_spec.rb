@@ -132,7 +132,7 @@ RSpec.describe AccessBase, type: :model do
     it "allows combined access" do
       class A002 < ATest
         define_access :edit
-        define_access :both, [:edit, :view]
+        define_access :both, [ :edit, :view ]
       end
       A002.allow :both, Student, :admin
       expect(A002.allow? Student, :edit, :admin).to eq true
@@ -143,7 +143,7 @@ RSpec.describe AccessBase, type: :model do
     it "allows combined roles" do
       class A003 < ATest
       end
-      A003.allow :view, Student, [:admin, :support]
+      A003.allow :view, Student, [ :admin, :support ]
       expect(A003.allow? Student, :view, :admin).to eq true
       expect(A003.allow? Student, :view, :support).to eq true
       expect(A003.allow? Student, :view, :hr).to eq false
@@ -211,7 +211,7 @@ RSpec.describe AccessBase, type: :model do
       expect(A007.node).to be_nil
       p = create(:person)
       A007.user = create(:user, person: p)
-      #expect(A007.allow? Person, :view, :admin).to eq true
+      # expect(A007.allow? Person, :view, :admin).to eq true
       n0 = A007.node
       r = A007.allow? p, :view, :self do
         n = A007.node

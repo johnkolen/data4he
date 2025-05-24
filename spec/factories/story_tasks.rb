@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :story_task do
-    title { "MyString" }
-    description { "MyString" }
-    priority { 1 }
-    status_id { 1 }
+    title { "A Title" }
+    description { "A Description" }
+    priority { 10 }
+    status_id { StoryTask::StatusActive }
   end
 end

@@ -86,9 +86,9 @@ RSpec.describe "/users", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        {email: "x#{rand(1000)}@foo.com",
-         password: "newpassword",
-         password_confirmation: "newpassword"}
+        { email: "x#{rand(1000)}@foo.com",
+          password: "newpassword",
+          password_confirmation: "newpassword" }
       }
 
       it "updates the requested user" do

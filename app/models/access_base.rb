@@ -3,11 +3,11 @@ class AccessBase
     @labels ||= {}
   end
 
-  def self.define_access(label, values=nil)
+  def self.define_access(label, values = nil)
     if values.is_a? Array
       labels[label] = values
     else
-      labels[label] = [values || label]
+      labels[label] = [ values || label ]
     end
   end
 
@@ -18,7 +18,7 @@ class AccessBase
     def initialize
       @map = {}
     end
-    def add key, child=nil
+    def add(key, child = nil)
       if key.is_a? Array
         key.each do |k|
           add key, child
@@ -28,13 +28,13 @@ class AccessBase
       end
       child
     end
-    def member? key
+    def member?(key)
       @map.member? key
     end
     def empty?
       @map.empty?
     end
-    def [] key
+    def [](key)
       @map[key]
     end
     def through *keys
@@ -51,7 +51,7 @@ class AccessBase
       end
     end
 
-    def tree_str indent=""
+    def tree_str(indent = "")
       return "" if empty?
       out = []
       @map.each do |key, value|
@@ -69,7 +69,7 @@ class AccessBase
 
   class Node < Mapper
     class ADX < Mapper
-      def add ad, child=nil
+      def add(ad, child = nil)
         raise "not allow or deny #{ad}" unless ad == :allow || ad == :deny
         super ad, child || Node.new
       end
@@ -88,20 +88,20 @@ class AccessBase
     end
 
     class LabelX < Mapper
-      def add label, ad, child=nil
+      def add(label, ad, child = nil)
         return self if member? label
         adx = ADX.new
         adx.add ad
         super label, adx
       end
 
-      def allow? label  # LabelX
+      def allow?(label)  # LabelX
         adx = self[label]
         return nil unless adx
         adx.allow?
       end
 
-      def deny? label  # LabelX
+      def deny?(label)  # LabelX
         adx = self[label]
         return nil unless adx
         adx.deny?
@@ -109,7 +109,7 @@ class AccessBase
     end
 
     class RoleX < Mapper
-      def add role, label, ad, child=nil
+      def add(role, label, ad, child = nil)
         unless member? role
           lx = LabelX.new
           lx.add label, ad, child
@@ -120,20 +120,20 @@ class AccessBase
         self
       end
 
-      def allow? role, label  # RoleX
+      def allow?(role, label)  # RoleX
         lx = self[role]
         return nil unless lx
         lx.allow? label
       end
 
-      def deny? role, label  # RoleX
+      def deny?(role, label)  # RoleX
         lx = self[role]
         return nil unless lx
         lx.deny? label
       end
     end
 
-    def add resource, role, label, ad, child=nil
+    def add(resource, role, label, ad, child = nil)
       unless member? resource
         rx = RoleX.new
         rx.add role, label, ad, child
@@ -143,21 +143,21 @@ class AccessBase
       end
     end
 
-    def allow resource, label, role
+    def allow(resource, label, role)
       add resource, label, role, :allow
     end
 
-    def deny resource, label, role
+    def deny(resource, label, role)
       add resource, label, role, :deny
     end
 
-    def allow? resource, role, label  # Node
+    def allow?(resource, role, label)  # Node
       rx = self[resource]
       return nil unless rx
       rx.allow? role, label
     end
 
-    def deny? resource, role, label  # Node
+    def deny?(resource, role, label)  # Node
       rx = self[resource]
       return nil unless rx
       rx.deny? role, label
@@ -174,12 +174,12 @@ class AccessBase
 
   # labels can be a single define label or an enumerable of defined labels
   # ad     can be :allow or :deny
-  def self._allowdeny labels, resource, roles, ad, &block
+  def self._allowdeny(labels, resource, roles, ad, &block)
     hold = @node
     @current = @node || root
     expand(labels).each do |label|
       expand(roles).each do |role|
-        #puts "#{label.inspect}  #{role.inspect} #{resource}"
+        # puts "#{label.inspect}  #{role.inspect} #{resource}"
         @current.add resource, role, label, ad
         if block_given?
           @node = @current.through resource, role, label, ad
@@ -190,11 +190,11 @@ class AccessBase
     @node = hold
   end
 
-  def self.allow labels, resource, roles, &block
+  def self.allow(labels, resource, roles, &block)
     _allowdeny labels, resource, roles, :allow, &block
   end
 
-  def self.deny labels, resource, roles, &block
+  def self.deny(labels, resource, roles, &block)
     _allowdeny labels, resource, roles, :deny, &block
   end
 
@@ -207,20 +207,20 @@ class AccessBase
     root.tree_str
   end
 
-  def self.expand elems
+  def self.expand(elems)
     if elems.is_a? Array
-      elems.map{|elem| expand elem }.flatten
+      elems.map { |elem| expand elem }.flatten
     else
       ex = labels[elems]
       if ex
         ex
       else
-        [elems]
+        [ elems ]
       end
     end
   end
 
-  def self.force_class obj
+  def self.force_class(obj)
     case obj
     when Symbol, Class
       obj
@@ -229,16 +229,16 @@ class AccessBase
     end
   end
 
-  def self._allow? resource, role, label
-    hold = [@node, @last_obj]
+  def self._allow?(resource, role, label)
+    hold = [ @node, @last_obj ]
     begin
       if resource.is_a? Symbol
-        #raise "cain #{resource} #{@node.deny?(force_class(resource), role, label)}"
+        # raise "cain #{resource} #{@node.deny?(force_class(resource), role, label)}"
         r = @node.deny?(resource, role, label)
         return !r unless r.nil?
         return true # attributes are accessible if they are reachable
       else
-        #raise "cain #{force_class(resource).inspect}  #{@node.allow?(force_class(resource), role, label)}"
+        # raise "cain #{force_class(resource).inspect}  #{@node.allow?(force_class(resource), role, label)}"
         r = @node.allow?(force_class(resource), role, label)
         # return nil or false
         return r unless r == true
@@ -272,20 +272,20 @@ class AccessBase
   # Check if role is able to access resource according to label
   # Returns
   #   boolean indicating access capability
-  def self.allow? resource, label, role=nil, &block
+  def self.allow?(resource, label, role = nil, &block)
     hold = @node
     @node ||= root
     begin
       role ||= user && user.role_sym
-      raise "cain" unless role
+      raise "no role" unless role
       # allow argument order changes to match node's unwinding of args
       if @node == root
         root_access = _allow?(Root, role, label, &block)
-        #puts "root_access = #{root_access.inspect}"
+        # puts "root_access = #{root_access.inspect}"
         return root_access unless root_access.nil?
       end
       path_access = _allow?(resource, role, label, &block)
-      #puts "path_access = #{path_access.inspect}"
+      # puts "path_access = #{path_access.inspect}"
       return path_access unless path_access.nil?
       self_access = _allow? resource, :self, label, &block
       return self_access || false
@@ -299,7 +299,7 @@ class AccessBase
     @node
   end
 
-  def self.user= user
+  def self.user=(user)
     @user = user
   end
   def self.user

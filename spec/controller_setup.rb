@@ -1,10 +1,10 @@
 module ControllerSetup
-  def controllerSetup obj, objs
-    #return unless obj || objs
+  def controllerSetup(obj, objs)
+    # return unless obj || objs
     if controller
       @klass = eval(controller.controller_path.classify)
       @klass_str = @klass.to_s
-      @klass_sym = @klass.to_s.downcase.to_sym
+      @klass_sym = @klass.to_s.underscore.to_sym
       @klass_p_str = @klass.to_s.pluralize
     end
 
@@ -26,7 +26,7 @@ module ControllerSetup
     end
   end
 
-  def accessSetup user_sym
+  def accessSetup(user_sym)
     Access.user = create(user_sym)
     destroy_list << Access.user
   end
@@ -35,7 +35,7 @@ module ControllerSetup
     base.extend ClassMethods
   end
 
-  def builder sym
+  def builder(sym)
     case sym.to_s
     when /^create_(.*)/
       create $1.to_sym
@@ -50,7 +50,7 @@ module ControllerSetup
     self.class.setup_object
   end
 
-  def s_object= obj
+  def s_object=(obj)
     self.class.setup_object = obj
     self.class.setup_object
   end
@@ -59,7 +59,7 @@ module ControllerSetup
     self.class.setup_objects
   end
 
-  def s_objects= objs
+  def s_objects=(objs)
     self.class.setup_objects = objs
     self.class.setup_objects
   end
@@ -69,7 +69,7 @@ module ControllerSetup
   end
 
   def cleanup_objects
-    destroy_list.each{|x| x.destroy if x && x.persisted?}
+    destroy_list.each { |x| x.destroy if x && x.persisted? }
     Access.user = nil
   end
 
@@ -122,7 +122,7 @@ module ControllerSetup
       end
     end
 
-    def accessSetup user_sym
+    def accessSetup(user_sym)
       @destroy = []
       before :all do
         accessSetup user_sym

@@ -1,5 +1,4 @@
 require 'rails_helper'
-require_relative "../controller_setup"
 
 RSpec.describe "students/index", type: :view do
   include ControllerSetup

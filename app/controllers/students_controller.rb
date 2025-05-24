@@ -6,7 +6,7 @@ class StudentsController < ApplicationController
 
   # GET /students or /students.json
   def index
-    @objects = @students = Student.all.select{|s| Access.allow? s, :view}
+    @objects = @students = Student.all.select { |s| Access.allow? s, :view }
   end
 
   # GET /students/1 or /students/1.json

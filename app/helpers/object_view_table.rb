@@ -1,5 +1,4 @@
 module ObjectViewTable
-
   def ov_table(klass, objs = [])
     return unless objs
     sym = klass.to_s.underscore.to_sym

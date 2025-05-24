@@ -19,5 +19,4 @@ FactoryBot.define do
       person factory: :student_person_1
     end
   end
-
 end

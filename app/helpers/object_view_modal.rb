@@ -2,13 +2,13 @@ module ObjectViewModal
   def ov_modal_header **options
     id = options[:id] || "modal"
     tag.div class: "modal-header ov-modal-header" do
-      [tag.div(options[:title] || "Title",
+      [ tag.div(options[:title] || "Title",
                class: "modal-title ov-modal-title", # add fs-5 to css
                id: "#{id}Label"),
        tag.button(type: "button",
                   class: "btn-close",
-                  data: {"bs-dismiss": "modal"},
-                  aria: {label: "Close"})
+                  data: { "bs-dismiss": "modal" },
+                  aria: { label: "Close" })
       ].join.html_safe
     end
   end
@@ -25,11 +25,11 @@ module ObjectViewModal
 
   def ov_modal_footer **options
     tag.div class: "modal-footer ov-modal-footer" do
-      [tag.button("Close",
+      [ tag.button("Close",
                   type: "button",
                   class: "btn btn-secondary",
-                  data: {"bs-dismiss": "modal"},
-                  aria: {label: "Close"})
+                  data: { "bs-dismiss": "modal" },
+                  aria: { label: "Close" })
       ].concat(options[:footer_buttons] || []).join.html_safe
     end
   end
@@ -39,8 +39,8 @@ module ObjectViewModal
     tag.div class: "modal fade ov-modal",
             id: "ov-modal",
             tabindex: -1,
-            #data: {action:"show.bs.modal->fill hide.bs.modal->close"},
-            aria: {labelledby: "#{id}Label", hidden: "true"} do
+            # data: {action:"show.bs.modal->fill hide.bs.modal->close"},
+            aria: { labelledby: "#{id}Label", hidden: "true" } do
       tag.div class: "modal-dialog ov-modal-dialog" do
         tag.div class: "modal-content ov-modal-content" do
           [ ov_modal_header(**options, id: id),
@@ -55,7 +55,7 @@ module ObjectViewModal
   def ov_modal_objects klass, **options, &block
     obj = klass.first
     id = "#{obj.class.to_s.underscore}_frame"
-    tag.div data: {controller: "modal-object"} do
+    tag.div data: { controller: "modal-object" } do
       [ capture(&block),
         ov_modal_object_modal(id, obj)
       ].join.html_safe
@@ -66,21 +66,21 @@ module ObjectViewModal
     buttons = [
       tag.button("Edit",
                  type: "button",
-                 data: {action: "click->modal-object#edit"},
+                 data: { action: "click->modal-object#edit" },
                  class: "btn btn-primary"),
       tag.button("Show",
                  type: "button",
-                 data: {action: "click->modal-object#view"},
+                 data: { action: "click->modal-object#view" },
                  class: "btn btn-primary")
     ]
     ov_modal footer_buttons: buttons do
       turbo_frame_tag id,
-                      src:nil,
-                      #loading: :lazy,
+                      src: nil,
+                      # loading: :lazy,
                       data: {
                         "modal-object-target": :frame,
-                        edit: edit_polymorphic_path(obj, params: {tf: 1}),
-                        view: polymorphic_path(obj, params: {tf: 1})
+                        edit: edit_polymorphic_path(obj, params: { tf: 1 }),
+                        view: polymorphic_path(obj, params: { tf: 1 })
                       }
     end
   end

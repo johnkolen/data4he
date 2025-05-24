@@ -1,4 +1,4 @@
-<% content = render "form", @klass_sym => @object %>
+<% content = render "form", @klass_sym => @object, turbo: @turbo %>
 <%= ov_modal_objects_view @klass, content, @turbo do %>
 <% content_for :title, "Editing #{ @klass_str }" %>
 

@@ -1,4 +1,4 @@
-<%= ov_form  house do %>
+<%= ov_form house, turbo: @turbo do %>
 <%= ov_errors %>
   <%= ov_string_field :name %>
   <%= ov_date_field :build_date %>

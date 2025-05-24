@@ -6,7 +6,7 @@ RSpec.describe Ability, type: :model do
   let(:user) { nil }
   context "when admin" do
     let(:user) { create :admin_user }
-    [Person, Student, User].each do |klass|
+    [ Person, Student, User ].each do |klass|
       it { is_expected.to be_able_to(:manange, klass) }
       it { is_expected.to be_able_to(:read, klass) }
     end

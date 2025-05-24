@@ -18,7 +18,7 @@ class ObjViewViewsGenerator < Rails::Generators::NamedBase
       "_object.html.erb"
     ].each do |x|
       template "#{x}.tt",
-               "app/views/#{name.pluralize}/#{x}".sub("object",name)
+               "app/views/#{name.pluralize}/#{x}".sub("object", name)
     end
   end
   # def copy_index_file
@@ -30,5 +30,4 @@ class ObjViewViewsGenerator < Rails::Generators::NamedBase
   # def copy_edit_file
   #   copy_file "edit.html.erb", "app/views/#{name}/edit.html.erb"
   # end
-
 end

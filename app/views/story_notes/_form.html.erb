@@ -1,4 +1,4 @@
-<%= ov_form  story_note do %>
+<%= ov_form story_note, turbo: @turbo do %>
 <%= ov_errors %>
   <%= ov_string_field :note %>
   <%= ov_string_field :author %>

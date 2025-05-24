@@ -1,4 +1,4 @@
-<%= ov_form  story_task do %>
+<%= ov_form story_task, turbo: @turbo do %>
 <%= ov_errors %>
   <%= ov_string_field :title %>
   <%= ov_text_area :description %>

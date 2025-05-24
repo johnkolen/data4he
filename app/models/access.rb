@@ -7,9 +7,9 @@ class Access < AccessBase
   define_access :edit
   define_access :delete
   define_access :index
-  define_access :access, [:view, :edit]
-  define_access :access_all, [:view, :edit, :index]
-  define_access :manage, [:create, :view, :edit, :delete, :index]
+  define_access :access, [ :view, :edit ]
+  define_access :access_all, [ :view, :edit, :index ]
+  define_access :manage, [ :create, :view, :edit, :delete, :index ]
 
   allow :view, Root, :support
   allow :manage, Root, :admin
@@ -34,7 +34,7 @@ class Access < AccessBase
         :self
   allow :access_all,
         Student,
-        [:administration, :registrar]
+        [ :administration, :registrar ]
 
 
   allow :edit,

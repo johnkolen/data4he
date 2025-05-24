@@ -16,7 +16,6 @@ class ApplicationController < ActionController::Base
 
   def set_turbo
     @turbo = params[:tf]
-    @tfp = @turbo ? {tf: params[:tf]} : {}
+    @tfp = @turbo ? { tf: params[:tf] } : {}
   end
-
 end

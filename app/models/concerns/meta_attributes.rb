@@ -39,7 +39,7 @@ module MetaAttributes
   end
 
   module ClassMethods
-    def fields_for? x
+    def fields_for?(x)
       return nil unless /(.*)_id$/ =~ x.to_s
       a = reflect_on_association($1)
       return nil if a.nil?

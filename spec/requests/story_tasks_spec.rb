@@ -13,16 +13,17 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/story_tasks", type: :request do
-  
+  classSetup user: :admin_user
+
   # This should return the minimal set of attributes required to create a valid
   # StoryTask. As you add validations to StoryTask, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    build(:story_task).to_params
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    build(:story_task).to_params title: ""
   }
 
   describe "GET /index" do
@@ -87,14 +88,18 @@ RSpec.describe "/story_tasks", type: :request do
   describe "PATCH /update" do
     context "with valid parameters" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { title: "New Title",
+          description: "New Description"
+        }
       }
 
       it "updates the requested story_task" do
         story_task = StoryTask.create! valid_attributes
         patch story_task_url(story_task), params: { story_task: new_attributes }
         story_task.reload
-        skip("Add assertions for updated state")
+        new_attributes.each do |attr, value|
+          expect(story_task.send(attr)).to eq value
+        end
       end
 
       it "redirects to the story_task" do

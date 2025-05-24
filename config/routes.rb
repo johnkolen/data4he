@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :story_notes
   resources :story_tasks do
     collection do
       get "kanban"

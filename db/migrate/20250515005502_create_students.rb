@@ -5,7 +5,7 @@ class CreateStudents < ActiveRecord::Migration[8.0]
       t.references :person, null: false, foreign_key: true
       t.references :catalog_year,
                    null: false,
-                   foreign_key: {to_table: :academic_years}
+                   foreign_key: { to_table: :academic_years }
 
       t.timestamps
     end

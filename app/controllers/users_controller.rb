@@ -34,7 +34,7 @@ class UsersController < ApplicationController
 
   # GET /users or /users.json
   def index
-    @objects = @users = User.all.select{|s| Access.allow? s, :view}
+    @objects = @users = User.all.select { |s| Access.allow? s, :view }
   end
 
   # GET /users/1 or /users/1.json

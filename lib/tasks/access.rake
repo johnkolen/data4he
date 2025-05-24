@@ -1,11 +1,11 @@
 namespace :access do
-  desc 'Shows access tree'
-  task tree: [:environment]  do
+  desc "Shows access tree"
+  task tree: [ :environment ]  do
     puts Access.tree_str
   end
-  task test: [:environment]  do |t, args|
+  task test: [ :environment ]  do |t, args|
     ARGV.shift
-    resource, label, role, user = ARGV.map{ |x| eval x}
+    resource, label, role, user = ARGV.map { |x| eval x }
     if user
       Access.user = user
       puts Access.user.inspect

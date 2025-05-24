@@ -1,5 +1,4 @@
 require 'rails_helper'
-require_relative "../controller_setup"
 
 RSpec.describe "users/edit", type: :view do
   include ControllerSetup

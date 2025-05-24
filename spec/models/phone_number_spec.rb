@@ -13,9 +13,8 @@ RSpec.describe PhoneNumber, type: :model do
     @pn.build_person
     @pn.number = 'xyz'
     expect(@pn.valid?).to eq false
-    #expect(/#{PhoneNumber::NUMBER_RE_STR}/.match? '(123)456-7890').to eq true
+    # expect(/#{PhoneNumber::NUMBER_RE_STR}/.match? '(123)456-7890').to eq true
     @pn.number = '(123)456-7890'
     expect(@pn.valid?).to eq true
   end
-
 end

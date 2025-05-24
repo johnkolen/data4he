@@ -5,8 +5,8 @@ module ObjectViewNavigation
               href: "#",
               role: "button",
               class: "nav-link dropdown-toggle",
-              aria: { expanded: "false"},
-              data: { "bs-toggle": "dropdown"}),
+              aria: { expanded: "false" },
+              data: { "bs-toggle": "dropdown" }),
         tag.ul(class: "dropdown-menu") do
           User.all.map do |u|
             tag.li(link_to(u.email, switch_user_path(u), class: "dropdown-item"))

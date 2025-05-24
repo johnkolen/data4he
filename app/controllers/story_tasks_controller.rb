@@ -8,7 +8,7 @@ class StoryTasksController < ApplicationController
   # GET /story_tasks or /story_tasks.json
   def index
     tasks = StoryTask.all. sort do |a, b|
-      [a.status_id, -a.priority] <=> [b.status_id, -b.priority]
+      [ a.status_id, -a.priority ] <=> [ b.status_id, -b.priority ]
     end
     @objects = @story_tasks = tasks
   end
@@ -87,7 +87,7 @@ class StoryTasksController < ApplicationController
     change_status StoryTask::StatusFinished
   end
 
-  def change_status status_id
+  def change_status(status_id)
     respond_to do |format|
       if @story_task.update(status_id: status_id)
         format.html { redirect_back fallback_location: :kanban, notice: "Story task was successfully updated." }
@@ -98,7 +98,6 @@ class StoryTasksController < ApplicationController
         format.json { render json: @story_task.errors, status: :unprocessable_entity }
       end
     end
-
   end
 
   # DELETE /story_tasks/1 or /story_tasks/1.json

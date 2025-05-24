@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Access, type: :model do
-
   def self.bulk_ad resource,
                     labels,
                     **outcomes
@@ -10,7 +9,7 @@ RSpec.describe Access, type: :model do
       roles.each do |role|
         labels.each do |label|
           it "#{msg} #{role} #{label}" do
-            expect( Access.allow? resource, label, role ).to eq tgt
+            expect(Access.allow? resource, label, role).to eq tgt
           end
         end
       end
@@ -19,24 +18,24 @@ RSpec.describe Access, type: :model do
 
   context 'Root bulk' do
     bulk_ad Access::Root,
-             [:view, :edit, :delete, :index ],
-             true => [:admin],
-             false => [:badhat]
+             [ :view, :edit, :delete, :index ],
+             true => [ :admin ],
+             false => [ :badhat ]
     bulk_ad Student,
-             [:view, :edit, :delete, :index ],
-             true => [:admin],
-             false => [:badhat]
+             [ :view, :edit, :delete, :index ],
+             true => [ :admin ],
+             false => [ :badhat ]
   end
 
   context 'Student bulk' do
     bulk_ad Student,
-             [:view, :edit ],
-             true => [:administration, :registrar, :admin],
-             false => [:badhat, :student]
+             [ :view, :edit ],
+             true => [ :administration, :registrar, :admin ],
+             false => [ :badhat, :student ]
     bulk_ad Student,
-             [:index],
-             true => [:admin, :administration, :registrar],
-             false => [:student, :badhat]
+             [ :index ],
+             true => [ :admin, :administration, :registrar ],
+             false => [ :student, :badhat ]
   end
 
   context 'Student' do

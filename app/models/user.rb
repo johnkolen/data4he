@@ -68,15 +68,15 @@ class User < ApplicationRecord
   end
 
   def role_options
-    ROLES.map{|k,v| [v,k]}
+    ROLES.map { |k, v| [ v, k ] }
   end
 
-  def is_self? obj
+  def is_self?(obj)
     return true if self.id == obj.id && obj.class == self.class
     return false unless person_id
     return person_id == obj.id if obj.is_a? Person
     return person_id == obj.person_id if obj.respond_to? :person_id
     # TODO: obj might have person deeper than first level
-    return false
+    false
   end
 end

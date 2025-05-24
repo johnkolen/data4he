@@ -7,10 +7,12 @@ class StoryTask < ApplicationRecord
                                 update_only: true,
                                 allow_destroy: true
 
-  scope :todo , ->{where(status_id: StatusToDo)}
-  scope :active , ->{where(status_id: StatusActive)}
-  scope :blocked , ->{where(status_id: StatusBlocked)}
-  scope :finished , ->{where(status_id: StatusFinished)}
+  scope :todo, -> { where(status_id: StatusToDo) }
+  scope :active, -> { where(status_id: StatusActive) }
+  scope :blocked, -> { where(status_id: StatusBlocked) }
+  scope :finished, -> { where(status_id: StatusFinished) }
+
+  validates :title, length: { minimum: 3 }
 
   include MetaAttributes
 
@@ -29,7 +31,7 @@ class StoryTask < ApplicationRecord
     200 => "Active",
     300 => "Blocked",
     800 => "Finished",
-    900 => "Backlog",
+    900 => "Backlog"
   }
 
   STATUSES.each do |id, label|
@@ -39,15 +41,15 @@ class StoryTask < ApplicationRecord
     const_set "Status#{label.gsub(' ', '')}", id
   end
 
-  def self.status_sym status_id
-    STATUSES[status_id].parameterize(separator: '_').to_sym
+  def self.status_sym(status_id)
+    STATUSES[status_id].parameterize(separator: "_").to_sym
   end
 
   def status_sym
-    STATUSES[status_id].parameterize(separator: '_').to_sym
+    STATUSES[status_id].parameterize(separator: "_").to_sym
   end
 
-  def self.status_str status_id
+  def self.status_str(status_id)
     STATUSES[status_id]
   end
 
@@ -56,7 +58,7 @@ class StoryTask < ApplicationRecord
   end
 
   def status_options
-    STATUSES.map{|k,v| [v,k]}
+    STATUSES.map { |k, v| [ v, k ] }
   end
 
   def story_notes_label

@@ -6,14 +6,14 @@ module ToParams
   included do
     def to_params
       h = attributes
-      h.delete_if{|k,v| v.nil?}
+      h.delete_if { |k, v| v.nil? }
       hx = {}
-      h.each do |k,v|
+      h.each do |k, v|
         hx[k] = v.to_s
       end
       hasmany = self.class.reflect_on_all_associations(:has_many)
       belongsto = self.class.reflect_on_all_associations(:belongs_to)
-      [hasmany, belongsto].flatten.each do |q|
+      [ hasmany, belongsto ].flatten.each do |q|
         nm = q.name
         r = send(nm)
         z = {}
@@ -29,7 +29,7 @@ module ToParams
       hx
     end
 
-    def add_values h, keys
+    def add_values(h, keys)
       case keys
       when Symbol
         h[keys.to_s] = send(keys)
@@ -58,7 +58,7 @@ module ToParams
 
     def to_params **additional
       c = "#{self.class.name.pluralize}Controller"
-      p = "#{self.class.name.downcase}_params"
+      p = "#{self.class.name.underscore}_params"
       add_values({}, eval(c).send(p)).merge! additional
     end
   end

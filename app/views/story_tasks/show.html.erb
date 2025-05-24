@@ -1,4 +1,4 @@
-<% content = render @object %>
+<% content = render @object, turbo: @turbo %>
 <%= ov_modal_objects_view @klass, content, @turbo do %>
 <% content_for :title, "#{ @klass_str }>" %>
 
