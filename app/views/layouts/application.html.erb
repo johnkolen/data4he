@@ -36,6 +36,7 @@
 	  People: current_user && Access.allow?(Person, :index) && people_path,
 	  Students: current_user && Access.allow?(Student, :index) && students_path,
 	  Users: current_user && Access.allow?(User, :index) && users_path,
+	  Tasks: current_user && Access.allow?(StoryTask, :index) && story_tasks_path,
 	  login_sym => login_path
       %>
     </div>

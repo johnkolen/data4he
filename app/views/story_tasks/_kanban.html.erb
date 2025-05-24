@@ -1,0 +1,17 @@
+<div class="kanban-task">
+  <div class="kanban-title">
+    <%=task.title%>
+  </div>
+  <div class="kanban-buttons ov-button-row">
+    <%[[StoryTask::StatusToDo, to_to_do_story_task_path(task)],
+       [StoryTask::StatusActive, to_active_story_task_path(task)],
+       [StoryTask::StatusBlocked, to_blocked_story_task_path(task)],
+       [StoryTask::StatusFinished, to_finished_story_task_path(task)]].each do |status_id, path| %>
+    <% if status_id == task.status_id %>
+        <%= ov_edit task %>
+    <% else %>
+      <%= ov_button_to StoryTask.status_str(status_id), path, method: :patch, class: "btn btn-secondary" %>
+    <% end %>
+    <% end %>
+  </div>
+</div>

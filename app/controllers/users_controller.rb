@@ -16,7 +16,7 @@ class UsersController < ApplicationController
   end
 
   # GET /users/1/edit_profile
-  def edit_profie
+  def edit_profile
   end
 
   # PATCH/PUT /users/1 or /users/1.json

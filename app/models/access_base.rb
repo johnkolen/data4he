@@ -76,12 +76,14 @@ class AccessBase
 
       def allow?  # ADX
         return true if @map[:allow]
-        false
+        return false if @map[:deny]
+        nil
       end
 
       def deny?  # ADX
+        return false if @map[:allow]
         return true if @map[:deny]
-        false
+        nil
       end
     end
 
@@ -95,13 +97,13 @@ class AccessBase
 
       def allow? label  # LabelX
         adx = self[label]
-        return false unless adx
+        return nil unless adx
         adx.allow?
       end
 
       def deny? label  # LabelX
         adx = self[label]
-        return false unless adx
+        return nil unless adx
         adx.deny?
       end
     end
@@ -120,13 +122,13 @@ class AccessBase
 
       def allow? role, label  # RoleX
         lx = self[role]
-        return false unless lx
+        return nil unless lx
         lx.allow? label
       end
 
       def deny? role, label  # RoleX
         lx = self[role]
-        return false unless lx
+        return nil unless lx
         lx.deny? label
       end
     end
@@ -151,13 +153,13 @@ class AccessBase
 
     def allow? resource, role, label  # Node
       rx = self[resource]
-      return false unless rx
+      return nil unless rx
       rx.allow? role, label
     end
 
     def deny? resource, role, label  # Node
       rx = self[resource]
-      return false unless rx
+      return nil unless rx
       rx.deny? role, label
     end
 
@@ -232,10 +234,14 @@ class AccessBase
     begin
       if resource.is_a? Symbol
         #raise "cain #{resource} #{@node.deny?(force_class(resource), role, label)}"
-        return false if @node.deny?(resource, role, label)
+        r = @node.deny?(resource, role, label)
+        return !r unless r.nil?
+        return true # attributes are accessible if they are reachable
       else
         #raise "cain #{force_class(resource).inspect}  #{@node.allow?(force_class(resource), role, label)}"
-        return false unless @node.allow?(force_class(resource), role, label)
+        r = @node.allow?(force_class(resource), role, label)
+        # return nil or false
+        return r unless r == true
       end
       if role == :self
         case resource
@@ -273,13 +279,20 @@ class AccessBase
       role ||= user && user.role_sym
       raise "cain" unless role
       # allow argument order changes to match node's unwinding of args
-      return true if @node == root &&
-                     _allow?(Root, role, label, &block)
-      return true if _allow?(resource, role, label, &block)
-      return _allow? resource, :self, label, &block
+      if @node == root
+        root_access = _allow?(Root, role, label, &block)
+        #puts "root_access = #{root_access.inspect}"
+        return root_access unless root_access.nil?
+      end
+      path_access = _allow?(resource, role, label, &block)
+      #puts "path_access = #{path_access.inspect}"
+      return path_access unless path_access.nil?
+      self_access = _allow? resource, :self, label, &block
+      return self_access || false
     ensure
       @node = hold
     end
+    raise "never get here"
   end
 
   def self.node

@@ -1,13 +1,13 @@
 <% content_for :title, "Editing Profile" %>
 
 <h1>Editing Profile</h1>
-
-<%= render partial: "form_profile", object: @object %>
+<%# raise @klass_sym.inspect %>
+<%= render partial: "form_profile", locals: {@klass_sym => @object} %>
 
 <br>
 
 <div class='ov-button-row'>
-<%= ov_show @object, path: profile_user_path(@obj) %>
+<%= ov_show @object, path: profile_user_path(@object) %>
 <%= ov_index @klass %>
 <%= ov_delete @object %>
 </div>

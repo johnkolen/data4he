@@ -1,0 +1,10 @@
+<% content_for :title, @klass_p_str %>
+
+<h1><%= @klass_p_str %></h1>
+<div>
+  <%= ov_new @klass %>
+</div>
+
+<div id="<%= @klass_str.downcase %>">
+  <%= ov_table @klass, @objects %>
+</div>

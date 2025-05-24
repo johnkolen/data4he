@@ -139,3 +139,27 @@ body {
     border-width: 1px;
     border-color: black;
 }
+
+.kanban-col-title {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center
+}
+.kanban-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center
+}
+.kanban-buttons {
+    button {
+	@extend .btn-sm;
+    }
+    text-align: center;
+}
+.kanban-task {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    padding: 3px;
+    background-color: white;
+}

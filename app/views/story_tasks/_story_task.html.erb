@@ -1,0 +1,9 @@
+<%= ov_display story_task do %>
+  <%= ov_string_field :title %>
+  <%= ov_string_field :description %>
+  <%= ov_integer_field :priority %>
+  <%= ov_select :status %>
+  <%= ov_datetime_field :created_at %>
+  <%= ov_datetime_field :updated_at %>
+  <%= ov_fields_for :story_notes %>
+<% end %>

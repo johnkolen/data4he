@@ -16,12 +16,12 @@ class PeopleController < ApplicationController
   # GET /people/new
   def new
     @object = @person = Person.new
-    @person.phone_numbers.build # used by Object View for template
+    @person.add_builds! # used by Object View for template
   end
 
   # GET /people/1/edit
   def edit
-    @person.phone_numbers.build # used by Object View for template
+    @person.add_builds! # used by Object View for template
   end
 
   # POST /people or /people.json

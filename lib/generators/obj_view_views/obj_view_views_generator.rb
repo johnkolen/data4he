@@ -18,7 +18,7 @@ class ObjViewViewsGenerator < Rails::Generators::NamedBase
       "_object.html.erb"
     ].each do |x|
       template "#{x}.tt",
-               "app/views/#{name.pluralize}/#{x}".sub("_object",name)
+               "app/views/#{name.pluralize}/#{x}".sub("object",name)
     end
   end
   # def copy_index_file

@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
   def set_klass
     @klass = eval(controller_name.classify)
     @klass_str = @klass.to_s
-    @klass_sym = @klass.to_s.downcase.to_sym
+    @klass_sym = @klass.to_s.underscore.to_sym
     @klass_p_str = @klass.to_s.pluralize
   end
 

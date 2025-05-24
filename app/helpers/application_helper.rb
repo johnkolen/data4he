@@ -1,6 +1,10 @@
+require "active_support/inflector"
+
 module ApplicationHelper
   include ObjectViewButtons
   include ObjectViewNavigation
+  include ObjectViewTable
+  include ObjectViewModal
 
   def object_view(obj)
     @ov_obj = obj
@@ -26,6 +30,8 @@ module ApplicationHelper
   end
 
   def ov_text_field(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
+    return if @ov_obj.is_a? Array
     id = oattr
     tag.div(class: "ov-field") do
       [ tag.label(@ov_obj.send("#{oattr}_label"),
@@ -42,7 +48,35 @@ module ApplicationHelper
     end
   end
 
+  def ov_string_field(oattr, **options)
+    ov_text_field oattr, **options
+  end
+
+  def ov_integer_field(oattr, **options)
+    ov_text_field oattr, **options
+  end
+
+  def ov_text_area(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
+    return if @ov_obj.is_a? Array
+    id = oattr
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          @ov_form.text_area(oattr,
+                             class: "form-control",
+                             pattern: @ov_obj.send("#{oattr}_pattern"),
+                             id: id,
+                             **options) :
+          tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
+      ].join.html_safe
+    end
+  end
+
   def ov_password_field(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
       [ tag.label(@ov_obj.send("#{oattr}_label"),
@@ -60,6 +94,7 @@ module ApplicationHelper
   end
 
   def ov_checkbox(oattr)
+    return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     cb_class = "form-check-input ov-checkbox"
     tag.div(class: "ov-field") do
@@ -78,16 +113,25 @@ module ApplicationHelper
     end
   end
 
-  def ov_select(oattr)
+  def ov_select(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     s_class = "form-select ov-select"
-    opts = options_for_select(@ov_obj.send("#{oattr}_options"))
+    mthd = "#{oattr}_id".to_sym
+    #raise @ov_form.object.send(mthd).inspect
+    #raise @ov_obj.send(mthd).inspect
+    opts = options_for_select(@ov_obj.send("#{oattr}_options"),
+                              selected: @ov_obj.send(mthd))
+    #raise @ov_form.select(mthd,
+    #                      opts,
+    #                      {},
+    #                      { class: s_class }).inspect
     tag.div(class: "ov-field") do
       [ tag.label(@ov_obj.send("#{oattr}_label"),
                   for: id,
                   class: @ov_form ? "form-label" : "ov-label"),
         @ov_form ?
-          tag.div(@ov_form.select("#{oattr}_id",
+          tag.div(@ov_form.select(mthd,
                                   opts,
                                   {},
                                   { class: s_class }
@@ -120,7 +164,8 @@ module ApplicationHelper
     end
   end
 
-  def ov_date_field(oattr)
+  def ov_date_field(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
       [ tag.label(@ov_obj.send("#{oattr}_label"),
@@ -133,41 +178,23 @@ module ApplicationHelper
     end
   end
 
+  def ov_datetime_field(oattr, **options)
+    return ov_col(oattr, **options) if @ov_table_row
+    return if @ov_obj.is_a? Array
+    id = oattr
+    tag.div(class: "ov-field") do
+      [ tag.label(@ov_obj.send("#{oattr}_label"),
+                  for: id,
+                  class: @ov_form ? "form-label" : "ov-label"),
+        @ov_form ?
+          @ov_form.datetime_field(oattr, class: "form-control", id: id) :
+          tag.div(@ov_obj.send("#{oattr}_str"), class: "ov-text")
+      ].join.html_safe
+    end
+  end
+
   def ov_submit(label = "Submit")
     tag.button label, type: :submit, class: "btn btn-primary"
-  end
-
-  def ov_table(klass, objs = [])
-    return unless objs
-    sym = klass.to_s.downcase.to_sym
-    obj = klass.new
-    obj.add_builds!
-
-    content = [
-      render(partial: "table_row",
-             locals: { sym => [ obj ] })
-    ]
-    objs.each do |obj|
-      content << render(partial: "table_row", locals: { sym => obj })
-    end
-    tag.table content.join.html_safe,
-              id: "#{klass.to_s.downcase}_table",
-              class: "ov-display"
-  end
-
-  def ov_table_row(obj = nil, &block)
-    @ov_obj = obj || @ov_obj
-    content = capture &block
-    if @ov_obj.is_a? Array
-      tag.tr content.html_safe,  class: "ov-table-row-head"
-    else
-      content += '<td class="ov-table-col">'.html_safe
-      content += ov_show
-      content += ov_edit
-      content += ov_delete
-      content += "</td>".html_safe
-      tag.tr content.html_safe, id: dom_id(@ov_obj), class: "ov-table-row"
-    end
   end
 
   def ov_with(oattr, &block)
@@ -182,15 +209,6 @@ module ApplicationHelper
     @ov_obj = hold
     res
   end
-
-  def ov_col(oattr)
-    if @ov_obj.is_a? Array
-      tag.td(@ov_obj.first.send("#{oattr}_label"), class: "ov-table-hdr")
-    else
-      tag.td(@ov_obj.send("#{oattr}_str"), class: "ov-table-col")
-    end
-  end
-
 
   def ov_errors
     return nil unless @ov_obj && @ov_obj.errors.any?

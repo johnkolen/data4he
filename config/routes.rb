@@ -1,4 +1,18 @@
 Rails.application.routes.draw do
+  resources :story_notes
+  resources :story_tasks do
+    collection do
+      get "kanban"
+    end
+    member do
+      patch "to_to_do"
+      patch "to_active"
+      patch "to_blocked"
+      patch "to_finished"
+      get "edit_form"
+    end
+  end
+
   devise_for :users, path: "auth"
   resources :users do
     member do

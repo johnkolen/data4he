@@ -14,7 +14,8 @@ RSpec.describe AccessBase, type: :model do
         expect(adx).to be_empty
         expect(adx.member? :role).to eq false
         expect(adx[:role]).to be_nil
-        expect(adx.allow?).to be false
+        expect(adx.allow?).to be_nil
+        expect(adx.deny?).to be_nil
       end
 
       it "adds allow" do
@@ -23,6 +24,7 @@ RSpec.describe AccessBase, type: :model do
         expect(adx[:allow]).to eq :child
         expect(adx.member? :allow).to eq true
         expect(adx.allow?).to be true
+        expect(adx.deny?).to be false
       end
     end
 
@@ -34,7 +36,8 @@ RSpec.describe AccessBase, type: :model do
         expect(lx).to be_empty
         expect(lx.member? :kind).to eq false
         expect(lx[:kind]).to be_nil
-        expect(lx.allow? :kind).to eq false
+        expect(lx.allow? :kind).to be_nil
+        expect(lx.deny? :kind).to be_nil
       end
 
       it "adds" do
@@ -43,7 +46,9 @@ RSpec.describe AccessBase, type: :model do
         expect(lx[:kind]).to be_a ADX
         expect(lx.member? :kind).to eq true
         expect(lx.allow? :kind).to eq true
+        expect(lx.deny? :kind).to eq false
         expect(lx.through :kind, :allow).to be_a AccessBase::Node
+        expect(lx.allow? :notkind).to be_nil
       end
     end
 
@@ -54,7 +59,8 @@ RSpec.describe AccessBase, type: :model do
         expect(rx).to be_a RoleX
         expect(rx).to be_empty
         expect(rx.member? :role).to eq false
-        expect(rx.allow? :role, :kind).to eq false
+        expect(rx.allow? :role, :kind).to be_nil
+        expect(rx.deny? :role, :kind).to be_nil
         expect(rx[:role]).to be_nil
       end
 
@@ -64,7 +70,9 @@ RSpec.describe AccessBase, type: :model do
         expect(rx[:role]).to be_a LabelX
         expect(rx.member? :role).to eq true
         expect(rx.allow? :role, :kind).to eq true
+        expect(rx.deny? :role, :kind).to eq false
         expect(rx.through :role, :kind, :allow).to be_a AccessBase::Node
+        expect(rx.deny? :notrole, :kind).to be_nil
       end
     end
 
@@ -75,7 +83,8 @@ RSpec.describe AccessBase, type: :model do
         expect(n).to be_a Node
         expect(n).to be_empty
         expect(n.member? Student).to eq false
-        expect(n.allow? Student, :role, :kind).to eq false
+        expect(n.allow? Student, :role, :kind).to be_nil
+        expect(n.deny? Student, :role, :kind).to be_nil
         expect(n[:role]).to be_nil
       end
       it "adds" do
@@ -84,7 +93,9 @@ RSpec.describe AccessBase, type: :model do
         expect(n[Student]).to be_a RoleX
         expect(n.member? Student).to eq true
         expect(n.allow? Student, :role, :kind).to eq true
+        expect(n.deny? Student, :role, :kind).to eq false
         expect(n.through Student, :role, :kind, :allow).to be_a AccessBase::Node
+        expect(n.allow? Person, :role, :kind).to be_nil
       end
     end
   end

@@ -1,0 +1,9 @@
+<%= ov_form  story_task do %>
+<%= ov_errors %>
+  <%= ov_string_field :title %>
+  <%= ov_text_area :description %>
+  <%= ov_integer_field :priority %>
+  <%= ov_select :status %>
+  <%= ov_fields_for :story_notes %>
+<%= ov_submit %>
+<% end %>

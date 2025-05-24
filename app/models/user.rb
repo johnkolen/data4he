@@ -9,9 +9,6 @@ class User < ApplicationRecord
 
   include MetaAttributes
 
-  def add_builds!
-  end
-
   def password_label
     "Password"
   end

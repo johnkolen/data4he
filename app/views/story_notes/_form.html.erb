@@ -1,0 +1,9 @@
+<%= ov_form  story_note do %>
+<%= ov_errors %>
+  <%= ov_string_field :note %>
+  <%= ov_string_field :author %>
+  <%= ov_integer_field :story_task_id %>
+  <%= ov_datetime_field :created_at %>
+  <%= ov_datetime_field :updated_at %>
+<%= ov_submit %>
+<% end %>

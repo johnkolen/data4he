@@ -55,15 +55,6 @@ RSpec.describe "/users", type: :request do
     end
   end
 
-  describe "GET /edit" do
-    it "renders a successful response" do
-      user = User.create! valid_attributes
-      get edit_user_url(user)
-      expect(response).to be_successful
-      user.destroy
-    end
-  end
-
   describe "POST /create" do
     context "with valid parameters" do
       it "creates a new User" do
@@ -136,6 +127,24 @@ RSpec.describe "/users", type: :request do
       user = User.create! valid_attributes
       delete user_url(user)
       expect(response).to redirect_to(users_url)
+    end
+  end
+
+  describe "GET /profile" do
+    it "renders a successful response" do
+      user = User.create! valid_attributes
+      get profile_user_url(user)
+      expect(response).to be_successful
+      user.destroy
+    end
+  end
+
+  describe "GET /edit_profile" do
+    it "renders a successful response" do
+      user = User.create! valid_attributes
+      get edit_profile_user_url(user)
+      expect(response).to be_successful
+      user.destroy
     end
   end
 end
