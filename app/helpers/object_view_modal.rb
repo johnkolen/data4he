@@ -92,7 +92,7 @@ module ObjectViewModal
         content
       end
     else
-      capture &block
+      capture(&block)
     end
   end
 end

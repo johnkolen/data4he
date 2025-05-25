@@ -1,4 +1,5 @@
-<% content = render "form", @klass_sym => @object, turbo: @turbo %>
+<%  content = controller.render_to_string("_form", formats: [:html], layout: false,
+    locals: { @klass_sym => @object, turbo: @turbo }) %>
 <%= ov_modal_objects_view @klass, content, @turbo do %>
 <% content_for :title, "Editing #{@klass_str}" %>
 

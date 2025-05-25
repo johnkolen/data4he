@@ -85,4 +85,5 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :system
   config.include ControllerSetup, type: :view
   config.include ControllerSetup, type: :request
+  config.include ControllerSetup, type: :helper
 end

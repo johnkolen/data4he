@@ -15,12 +15,11 @@ RSpec.describe "users/edit_profile", type: :view do
   end
 
   it "renders attributes in <p>" do
-    puts Access.user
     hold = Access.user
     Access.user = object
     render
     Access.user = hold
-    #puts response
+    puts response
     assert_select "form[action=?][method=?]", user_path(object), "post" do
       assert_select "input[name=?]", "user[email]"
       assert_select "input[name=?]", "user[person][first_name]"

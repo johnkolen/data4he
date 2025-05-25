@@ -11,7 +11,7 @@ module ObjectViewButtons
   def ov_edit(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    return unless Access.allow? obj, :edit
+    return unless ov_allow? obj, :edit
     ov_button_to "Edit",
                  options[:path] || edit_polymorphic_path(obj),
                  **options
@@ -20,7 +20,7 @@ module ObjectViewButtons
   def ov_show(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    return unless Access.allow? obj, :view
+    return unless ov_allow? obj, :view
     ov_button_to "Show",
                  polymorphic_path(obj),
                  **options
@@ -29,7 +29,7 @@ module ObjectViewButtons
   def ov_delete(obj = nil, **options)
     obj ||= @ov_obj
     return if obj.is_a? Array
-    return unless Access.allow? obj, :delete
+    return unless ov_allow? obj, :delete
     ov_button_to "Delete",
                  polymorphic_path(obj),
                  method: options[:method] || :delete,
@@ -38,7 +38,7 @@ module ObjectViewButtons
     end
 
   def ov_new(klass, **options)
-    return unless Access.allow? klass, :create
+    return unless ov_allow? klass, :create
     return if klass.is_a? Array
     ov_button_to "New",
                  new_polymorphic_path(klass),
@@ -46,14 +46,14 @@ module ObjectViewButtons
   end
 
   def ov_index(klass, **options)
-    return unless Access.allow? klass, :index
+    return unless ov_allow? klass, :index
     ov_button_to klass.to_s.pluralize,
                  polymorphic_path(klass),
                  **options
   end
 
   def ov_add
-    return unless Access.allow? @ov_obj, :edit
+    return unless ov_allow? @ov_obj, :edit
     button_class = [
       "add-btn",
       "add-#{@ov_obj.class.to_s.downcase}-btn",
@@ -67,7 +67,7 @@ module ObjectViewButtons
   end
 
   def ov_remove(id)
-    return unless Access.allow? @ov_obj, :edit
+    return unless ov_allow? @ov_obj, :edit
     button_class = [
       "remove-btn",
       "remove-#{@ov_obj.class.to_s.downcase}-btn",
@@ -82,5 +82,10 @@ module ObjectViewButtons
                 data: { action: "click->ov-fields-for#remove" },
                 "data-bs-toggle": "collapse",
                 "data-bs-target": "##{id}")).html_safe
+  end
+
+  def ov_submit(label = "Submit")
+    return unless ov_allow? @ov_obj, @ov_access
+    tag.button label, type: :submit, class: "btn btn-primary"
   end
 end

@@ -31,10 +31,6 @@ module ControllerSetup
     destroy_list << Access.user
   end
 
-  def self.included(base)
-    base.extend ClassMethods
-  end
-
   def builder(sym)
     case sym.to_s
     when /^create_(.*)/
@@ -51,6 +47,7 @@ module ControllerSetup
   end
 
   def s_object=(obj)
+    raise "cain" if obj.nil?
     self.class.setup_object = obj
     self.class.setup_object
   end
@@ -91,6 +88,10 @@ module ControllerSetup
     end
   end
 
+  def self.included(base)
+    base.extend ClassMethods
+  end
+
   module ClassMethods
     attr_accessor :setup_object
     attr_accessor :setup_objects
@@ -119,6 +120,29 @@ module ControllerSetup
 
       after :all do
         cleanup_objects
+      end
+    end
+
+    def helperSetup **options
+      @setup_object = options[:object].dup
+      @setup_objects = options[:objects].dup
+      @setup_user = options[:user].dup
+      @destroy = []
+
+      before :all do
+        setup_all
+      end
+
+      let (:object) { s_object }
+      let (:objects) { s_objects }
+
+      before :each do
+        accessSetup self.class.setup_user || :admin_user
+        #sign_in(Access.user, scope: :user) if Access.user
+      end
+
+      after :all do
+        self.cleanup_objects
       end
     end
 
