@@ -11,30 +11,36 @@ module ApplicationHelper
   end
 
   def ov_form(obj = nil, **options, &block)
-    @ov_obj = obj || @ov_obj
-    p = {}
-    if options[:turbo]
-      p = { tf: 1 }
+    Access.allow? obj, :edit do
+      @ov_access = :edit
+      @ov_obj = obj || @ov_obj
+      p = {}
+      if options[:turbo]
+        p = { tf: 1 }
+      end
+      f = form_with(model: @ov_obj,
+                    url: polymorphic_path(@ov_obj, params: p),
+                    class: "ov-form",
+                    **options) do |form|
+        @ov_form = form
+        capture &block
+      end
+      tag.div f, class: "ov-form-wrapper"
     end
-    f = form_with(model: @ov_obj,
-      url: polymorphic_path(@ov_obj, params: p),
-                  class: "ov-form",
-                  **options) do |form|
-      @ov_form = form
-      capture &block
-    end
-    tag.div f, class: "ov-form-wrapper"
   end
 
   def ov_display(obj = nil, &block)
-    return capture &block if @ov_form
-    @ov_obj = obj || @ov_obj
-    content = capture &block
-
-    tag.div content, id: dom_id(@ov_obj), class: "ov-display"
+    Access.allow? obj, :view do
+      @ov_access = :view
+      return capture &block if @ov_form
+      @ov_obj = obj || @ov_obj
+      content = capture &block
+      tag.div content, id: dom_id(@ov_obj), class: "ov-display"
+    end
   end
 
   def ov_text_field(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
@@ -62,6 +68,7 @@ module ApplicationHelper
   end
 
   def ov_text_area(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
@@ -81,6 +88,7 @@ module ApplicationHelper
   end
 
   def ov_password_field(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
@@ -98,7 +106,8 @@ module ApplicationHelper
     end
   end
 
-  def ov_checkbox(oattr)
+  def ov_checkbox(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     cb_class = "form-check-input ov-checkbox"
@@ -119,6 +128,7 @@ module ApplicationHelper
   end
 
   def ov_select(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     s_class = "form-select ov-select"
@@ -148,6 +158,7 @@ module ApplicationHelper
 
   # In progress
   def ov_radio(oattr, radio_name = nil)
+    return unless Access.allow? oattr, @ov_access
     id = oattr
     radio_name = "radio-#{radio_name ||= oattr}"
     cb_class = "form-check-input ov-checkbox"
@@ -170,6 +181,7 @@ module ApplicationHelper
   end
 
   def ov_date_field(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
@@ -184,6 +196,7 @@ module ApplicationHelper
   end
 
   def ov_datetime_field(oattr, **options)
+    return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
@@ -199,6 +212,7 @@ module ApplicationHelper
   end
 
   def ov_submit(label = "Submit")
+    return unless Access.allow? @ov_obj, @ov_access
     tag.button label, type: :submit, class: "btn btn-primary"
   end
 
@@ -289,9 +303,9 @@ module ApplicationHelper
       out << ov_add
     end
 
-    name = @ov_obj.class.to_s.downcase
+    name = @ov_obj.class.to_s.underscore
     elem_num = 0
-    @ov_form.fields_for oattr  do |form|
+    @ov_form.fields_for oattr, @ov_obj.send(oattr) do |form|
       @ov_form = form
       @ov_obj = form.object
       elem_num += 1
