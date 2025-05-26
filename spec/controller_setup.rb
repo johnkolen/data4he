@@ -27,13 +27,9 @@ module ControllerSetup
   end
 
   def accessSetup(user_sym)
-    Access.user = create(user_sym)
+    u = build(user_sym)
+    Access.user = u.class.find_by(email: u.email) || create(user_sym)
     destroy_list << Access.user
-  end
-
-  def prettyprint x
-    node = Nokogiri::HTML(x)
-    puts node.to_xhtml(indent: 2)
   end
 
   def builder(sym)
@@ -71,7 +67,9 @@ module ControllerSetup
   end
 
   def cleanup_objects
+    #puts "cleanup: #{destroy_list.inspect}"
     destroy_list.each { |x| x.destroy if x && x.persisted? }
+    destroy_list = []
     Access.user = nil
   end
 
@@ -91,6 +89,7 @@ module ControllerSetup
         end
       end
     end
+    #puts "setup: #{destroy_list.inspect}"
   end
 
   def self.included(base)
@@ -130,6 +129,20 @@ module ControllerSetup
       end
     end
 
+    def object_class
+      tgt = @setup_object || @setup_objects && @setup_objects.first
+      if /(create|build)_(.*)/ =~ tgt
+        eval($2.classify)
+      end
+    end
+
+    def object_entity
+      tgt = @setup_object || @setup_objects && @setup_objects.first
+      if /(create|build)_(.*)/ =~ tgt
+        $2
+      end
+    end
+
     def helperSetup **options
       @setup_object = options[:object].dup
       @setup_objects = options[:objects].dup
@@ -137,6 +150,7 @@ module ControllerSetup
       @destroy = []
 
       before :all do
+        expect(User.count).to eq(0)
         setup_all
       end
 
@@ -145,18 +159,33 @@ module ControllerSetup
 
       before :each do
         accessSetup self.class.setup_user || :admin_user
-        #sign_in(Access.user, scope: :user) if Access.user
+        if respond_to? :sign_in
+          sign_in(Access.user, scope: :user) if Access.user
+        end
+        #puts "current user = #{Access.user.inspect}"
       end
 
       after :all do
         self.cleanup_objects
       end
+      after(:all) do
+        if false && User.count == 0
+          ulist = User.all.map(&:inspect).join "\n"
+          raise "nonzero User count #{self.inspect}\n#{ulist}\n#{destroy_list.size}"
+        end
+      end
+    end
+
+    def requestSetup **options
+      helperSetup **options
     end
 
     def accessSetup(user_sym)
       @destroy = []
       before :all do
         accessSetup user_sym
+        sign_in(Access.user, scope: :user) if Access.user
+        #puts "current user = #{current_user.inspect}"
       end
       after :all do
         self.class.cleanup_objects

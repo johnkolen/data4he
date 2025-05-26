@@ -10,6 +10,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require "rspec/rails"
 require "capybara/rails"
 require_relative "controller_setup"
+require_relative "common_tests"
 
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -86,4 +87,6 @@ RSpec.configure do |config|
   config.include ControllerSetup, type: :view
   config.include ControllerSetup, type: :request
   config.include ControllerSetup, type: :helper
+  config.include CommonTests, type: :view
+  config.include CommonTests, type: :request
 end

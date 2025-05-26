@@ -33,8 +33,10 @@
 	 end
 	 %>
       <%= navigation _brand: image_tag("data4he.png", size: 90),
-	  People: current_user && Access.allow?(Person, :index) && people_path,
-	  Students: current_user && Access.allow?(Student, :index) && students_path,
+	  #People: current_user && Access.allow?(Person, :index) && people_path,
+	  #Students: current_user && Access.allow?(Student, :index) && students_path,
+	  People: people_path,
+	  Students: students_path,
 	  Users: current_user && Access.allow?(User, :index) && users_path,
 	  Tasks: current_user && Access.allow?(StoryTask, :index) && story_tasks_path,
 	  login_sym => login_path

@@ -5,28 +5,13 @@ RSpec.describe "users/edit_profile", type: :view do
   classSetup object: :create_student_user,
              user: :admin_user
 
-  it "renders attributes with admin" do
-    render
-    assert_select "form[action=?][method=?]", user_path(object), "post" do
-      assert_select "input[name=?]", "user[email]"
-      assert_select "input[name=?]", "user[person][first_name]"
-      assert_select "input[name=?]", "user[person][ssn]", 1
-    end
-  end
+  views_models_edit form: "form_profile"
 
-  it "renders attributes in <p>" do
-    skip
+  it "renders attributes with user" do
     hold = Access.user
     Access.user = object
-    render
+    views_models_edit form: "form_profile"
+  ensure
     Access.user = hold
-    node = Nokogiri::HTML(response)
-    puts node.to_xhtml(indent: 2)
-
-    assert_select "form[action=?][method=?]", user_path(object), "post" do
-      assert_select "input[name=?]", "user[email]"
-      assert_select "input[name=?]", "user[person][first_name]"
-      assert_select "input[name=?]", "user[person][ssn]", 0
-    end
   end
 end

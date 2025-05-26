@@ -54,6 +54,16 @@ RSpec.describe User, type: :model do
     end
   end
 
+  it "updates password" do
+    u = create(:user)
+    np = "newPassword"
+    u.update(password: np)
+    u.reload
+    expect(u.password).to eq np
+  ensure
+    u.destroy
+  end
+
   after :all do
     expect(User.count).to eq 0
   end

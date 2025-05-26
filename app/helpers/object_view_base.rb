@@ -48,16 +48,26 @@ module ObjectViewBase
   ###################################
 
   def ov_allow? resource, label, **options, &block
-    hold = @ov_access
+    hold = [@ov_access, @ov_allow_override]
     @ov_access ||= label
     if options[:why]
       puts "node  #{ov_access_class.node.inspect}"
       puts "allow? #{resource.inspect}\n  label #{@ov_access}\n  user #{ov_access_class.user.inspect}"
       puts "   -> #{ov_access_class.allow? resource, @ov_access}"
     end
-    ov_access_class.allow? resource, @ov_access, &block
+    unless block_given?
+      return @ov_allow_override ||
+             options[:allow] ||
+             ov_access_class.allow?(resource, @ov_access)
+    end
+    @ov_allow_override = true if options[:allow]
+    if @ov_allow_override
+      yield
+    else
+      ov_access_class.allow? resource, @ov_access, &block
+    end
   ensure
-    @ov_access = hold
+    @ov_access, @ov_allow_override = hold
   end
 
   ###################################
@@ -70,8 +80,9 @@ module ObjectViewBase
       if options[:turbo]
         p = { tf: 1 }
       end
+      url = polymorphic_path(@ov_obj, params: p)
       f = form_with(model: @ov_obj,
-                    url: polymorphic_path(@ov_obj, params: p),
+                    url: url,
                     class: "ov-form",
                     **options) do |form|
         @ov_form = form
@@ -255,7 +266,10 @@ module ObjectViewBase
       #puts "template = #{_template(oattr)}, #{oattr} => #{@ov_obj}"
       #puts "fields = #{fields}"
       li_body = pid + fields
-      li_body += ov_remove(li_id) if options[:removable]
+      if options[:removable]
+        r = ov_remove(li_id)
+        li_body += r if r
+      end
       elem = tag.li(li_body.html_safe,
                     id: li_id,
                     class: "ov-object collapse show").html_safe

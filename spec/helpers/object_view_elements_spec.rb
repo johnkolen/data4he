@@ -12,6 +12,7 @@ require 'rails_helper'
 # end
 
 RSpec.describe ObjectViewElements, type: :helper do
+
   context "text field" do
     helperSetup object: :create_student,
                 user: :admin_user
@@ -98,8 +99,14 @@ RSpec.describe ObjectViewElements, type: :helper do
     end
     it "form" do
       # don't need the form DOM element and it's path
-      helper.class.define_method :polymorphic_path do |obj, *arg, **other|
+      #helper.class.define_method :polymorphic_path do |obj, *arg, **other|
+      #    ""
+      #end
+      pnp = helper.class.respond_to? :phone_number_path
+      unless pnp
+        helper.class.define_method :phone_number_path do |obj, *arg, **other|
           ""
+        end
       end
       helper.form_with model: object do |form|
         helper.set_ov_form form
@@ -107,7 +114,11 @@ RSpec.describe ObjectViewElements, type: :helper do
         node = Nokogiri::HTML(elem)
         assert_dom node, "label[for=\"active\"]"
         assert_dom node, "input[name=\"phone_number[active]\"][type=\"checkbox\"]"
-      assert_dom node, "input[onclick=\"return false\"]", 0
+        assert_dom node, "input[onclick=\"return false\"]", 0
+      end
+    ensure
+      unless pnp
+        helper.class.undef_method :phone_number_path
       end
     end
     it "text" do
@@ -120,7 +131,7 @@ RSpec.describe ObjectViewElements, type: :helper do
     end
   end
 
-    context "select" do
+  context "select" do
     helperSetup object: :create_user,
                 user: :admin_user
     before :each do
@@ -145,6 +156,7 @@ RSpec.describe ObjectViewElements, type: :helper do
       assert_dom node, "div[class=\"ov-text\"]"
     end
   end
+
 
   context "date field" do
     helperSetup object: :create_person,
@@ -195,6 +207,13 @@ RSpec.describe ObjectViewElements, type: :helper do
       assert_dom node, "label[for=\"created_at\"]"
       assert_dom node, "input[name=\"student[created_at]\"]", 0
       assert_dom node, "div[class=\"ov-text\"]"
+    end
+  end
+
+  after(:all) do
+    unless User.count == 0
+      ulist = User.all.map(&:inspect).join "\n"
+      raise "nonzero User count #{self.inspect}\n#{ulist}\n#{destroy_list.size}"
     end
   end
 end

@@ -1,6 +1,6 @@
 <h2>Log in</h2>
 
-<%= ov_form resource, url: session_path(resource_name) do %>
+<%= ov_form resource, url: session_path(resource_name), allow: {allow: true} do %>
 <%=  ov_text_field :email, autocomplete: "email" %>
 <%=  ov_password_field :password, autocomplete: "current-password" %>
 <%=  ov_checkbox :remember_me %>

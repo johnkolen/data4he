@@ -1,13 +1,13 @@
 module ObjectViewElements
   def ov_text_field(oattr, **options)
-    if oattr == :ssn
+    if false && oattr == :ssn
       puts "SSN"
       puts Access.user.person.inspect
       puts @ov_obj.inspect
       puts Access.allow? oattr, @ov_access
       puts Access.explain
     end
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
@@ -36,7 +36,7 @@ module ObjectViewElements
   end
 
   def ov_text_area(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
@@ -56,7 +56,7 @@ module ObjectViewElements
   end
 
   def ov_password_field(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
@@ -75,7 +75,7 @@ module ObjectViewElements
   end
 
   def ov_checkbox(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     cb_class = "form-check-input ov-checkbox"
@@ -96,7 +96,7 @@ module ObjectViewElements
   end
 
   def ov_select(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     s_class = "form-select ov-select"
@@ -126,7 +126,7 @@ module ObjectViewElements
 
   # In progress
   def ov_radio(oattr, radio_name = nil)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     id = oattr
     radio_name = "radio-#{radio_name ||= oattr}"
     cb_class = "form-check-input ov-checkbox"
@@ -149,7 +149,7 @@ module ObjectViewElements
   end
 
   def ov_date_field(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     id = oattr
     tag.div(class: "ov-field") do
@@ -164,7 +164,7 @@ module ObjectViewElements
   end
 
   def ov_datetime_field(oattr, **options)
-    return unless Access.allow? oattr, @ov_access
+    return unless ov_allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr

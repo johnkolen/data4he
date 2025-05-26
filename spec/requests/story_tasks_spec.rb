@@ -13,140 +13,39 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/story_tasks", type: :request do
-  classSetup user: :admin_user
+  requestSetup object: :create_story_task,
+               objects: [:create_story_task_sample,
+                         :create_story_task_sample],
+               user: :admin_user
 
   # This should return the minimal set of attributes required to create a valid
   # StoryTask. As you add validations to StoryTask, be sure to
   # adjust the attributes here as well.
+
   let(:valid_attributes) {
-    build(:story_task_sample).to_params
+    [
+      build(:story_task_sample).to_params,
+      build(:story_task_sample, :with_story_note).to_params
+    ]
   }
 
   let(:invalid_attributes) {
     build(:story_task_sample).to_params title: ""
   }
 
-  before :all do
-    @story_task = create(:story_task)
-    @story_task_1 = create(:story_task_sample)
-    @story_task_patch = create(:story_task_sample)
-  end
-  after :all do
-    @story_task.destroy
-    @story_task_1.destroy
-    @story_task_patch.destroy
-  end
+  let(:new_attributes) {
+    { title: "New Title",
+      description: "New Description"
+    }
+  }
 
-  describe "GET /index" do
-    it "renders a successful response" do
-      get story_tasks_url
-      expect(response).to be_successful
-    end
-  end
+  # covers basic testing of standard routes
+  requests_get_index
+  requests_get_show
+  requests_get_new
+  requests_get_edit
+  requests_post_create
+  requests_patch_update
+  requests_delete_destroy
 
-  describe "GET /show" do
-    it "renders a successful response" do
-      get story_task_url(@story_task)
-      expect(response).to be_successful
-    end
-  end
-
-  describe "GET /new" do
-    it "renders a successful response" do
-      get new_story_task_url
-      expect(response).to be_successful
-    end
-  end
-
-  describe "GET /edit" do
-    it "renders a successful response" do
-      get edit_story_task_url(@story_task)
-      expect(response).to be_successful
-    end
-  end
-
-  describe "POST /create" do
-    context "with valid parameters" do
-      it "creates a new StoryTask" do
-        expect {
-          post story_tasks_url, params: { story_task: valid_attributes }
-        }.to change(StoryTask, :count).by(1)
-      end
-
-      it "redirects to the created story_task" do
-        post story_tasks_url, params: { story_task: valid_attributes }
-        expect(response).to redirect_to(story_task_url(StoryTask.last))
-      end
-    end
-
-    context "with invalid parameters" do
-      it "does not create a new StoryTask" do
-        expect {
-          post story_tasks_url, params: { story_task: invalid_attributes }
-        }.to change(StoryTask, :count).by(0)
-      end
-
-      it "renders a response with 422 status (i.e. to display the 'new' template)" do
-        post story_tasks_url, params: { story_task: invalid_attributes }
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
-  end
-
-  describe "PATCH /update" do
-    context "with valid parameters" do
-      let(:new_attributes) {
-        { title: "New Title",
-          description: "New Description"
-        }
-      }
-
-      before(:each) do
-        @p = @story_task_patch.to_params
-      end
-      after(:each) do
-        @story_task_patch.update!(@p) # return user_patch back
-      end
-      it "updates the requested story_task" do
-        patch story_task_url(@story_task_patch), params: { story_task: new_attributes }
-        @story_task_patch.reload
-        new_attributes.each do |attr, value|
-          expect(@story_task_patch.send(attr)).to eq value
-        end
-      end
-
-      it "redirects to the story_task" do
-        patch story_task_url(@story_task_patch),
-              params: { story_task: new_attributes }
-        @story_task_patch.reload
-        expect(response).to redirect_to(story_task_url(@story_task_patch))
-      end
-    end
-
-    context "with invalid parameters" do
-      it "renders a response with 422 status (i.e. to display the 'edit' template)" do
-        patch story_task_url(@story_task_patch), params: { story_task: invalid_attributes }
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
-  end
-
-  describe "DELETE /destroy" do
-    before :each do
-      @story_task_delete = create(:story_task_sample)
-    end
-    after :each do
-      @story_task_delete.destroy
-    end
-    it "destroys the requested story_task" do
-      expect {
-        delete story_task_url(@story_task_delete)
-      }.to change(StoryTask, :count).by(-1)
-    end
-
-    it "redirects to the story_tasks list" do
-      delete story_task_url(@story_task_delete)
-      expect(response).to redirect_to(story_tasks_url)
-    end
-  end
 end

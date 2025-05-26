@@ -5,8 +5,5 @@ RSpec.describe "users/show", type: :view do
   classSetup object: :create_student_user,
              user: :admin_user
 
-  it "renders attributes in <p>" do
-    render
-    expect(rendered).to match(/#{s_object.email}/)
-  end
+  views_models_show
 end

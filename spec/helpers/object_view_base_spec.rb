@@ -103,7 +103,7 @@ RSpec.describe ObjectViewBase, type: :helper do
       Access.user = @hold_user
     end
     it "student form" do
-      elem = helper.ov_form object, allow: { why: true } do
+      elem = helper.ov_form object do
         #expect(ov_allow? helper.ov_form.object, :edit).to be true
         helper.ov_fields_for :person do
           expect(ov_allow? :last_name, :edit).to be true
@@ -111,9 +111,8 @@ RSpec.describe ObjectViewBase, type: :helper do
         end
         helper.ov_fields_for :person
       end
-      puts Access.explain
-      node = Nokogiri::HTML(elem)
-      puts node.to_xhtml(indent: 2)
+      #node = Nokogiri::HTML(elem)
+      #puts node.to_xhtml(indent: 2)
     end
   end
 

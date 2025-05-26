@@ -1,5 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe AcademicYear, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "initializes" do
+    ay = AcademicYear.new
+    expect(ay).to be_a AcademicYear
+  end
 end

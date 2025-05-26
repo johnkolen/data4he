@@ -1,5 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe StoryTask, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "initializes" do
+    st = StoryTask.new
+    expect(st).to be_a StoryTask
+  end
 end
