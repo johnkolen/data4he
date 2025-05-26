@@ -2,6 +2,9 @@ require 'rails_helper'
 require 'cancan/matchers'
 
 RSpec.describe User, type: :model do
+  before :all do
+    expect(User.count).to eq 0
+  end
   before :each do
     @u = User.new
   end
@@ -49,5 +52,9 @@ RSpec.describe User, type: :model do
     it 'from other user' do
       expect(@u.is_self? @v).to eq false
     end
+  end
+
+  after :all do
+    expect(User.count).to eq 0
   end
 end

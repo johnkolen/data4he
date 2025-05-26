@@ -12,36 +12,123 @@ require 'rails_helper'
 # end
 
 RSpec.describe ObjectViewBase, type: :helper do
-  context "text field" do
-    helperSetup object: :create_student,
-                user: :admin_user
-    before :each do
-      helper.set_ov_obj object
+  context "helpers" do
+    it "ov_obj_class_name_u" do
+      helper.set_ov_obj build(:story_task)
+      expect(helper.ov_obj_class_name_u).to eq "story_task"
     end
-    it "form" do
-      elem = helper.ov_form object do |form|
-        helper.ov_text_field(:inst_id)
-      end
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "div[class=\"ov-display\"]", 0
-      assert_dom node, "form[class=\"ov-form\"]" do
-        assert_dom node, "label[for=\"inst_id\"]"
-        assert_dom node, "input[name=\"student[inst_id]\"]"
-        assert_dom node, "div[class=\"ov-text\"]", 0
-      end
-    end
-    it "display" do
-      elem = helper.ov_display object do |form|
-        helper.ov_text_field(:inst_id)
-      end
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "form[class=\"ov-form\"]", 0
-      assert_dom node, "div[class=\"ov-display\"]" do
-        assert_dom node, "label[for=\"inst_id\"]"
-        assert_dom node, "input[name=\"student[inst_id]\"]", 0
-        assert_dom node, "div[class=\"ov-text\"]"
-      end
+    it "ov_obj_class_name_k" do
+      helper.set_ov_obj build(:story_task)
+      expect(helper.ov_obj_class_name_k).to eq "story-task"
     end
   end
 
+  context "admin accesses text field in a" do
+    helperSetup object: :create_student,
+                user: :admin_user
+    it "form" do
+      attr = :inst_id
+      elem = helper.ov_form object do |form|
+        helper.ov_text_field(attr)
+      end
+      node = Nokogiri::HTML(elem)
+      check node, :form, object, attr
+    end
+
+    it "display" do
+      attr = :inst_id
+      elem = helper.ov_display object do |form|
+        helper.ov_text_field(attr)
+      end
+      node = Nokogiri::HTML(elem)
+      check node, :display, object, attr
+    end
+
+    it "nested form" do
+      attr = :last_name
+      elem = helper.ov_form object do |form|
+        helper.ov_fields_for :person do
+          helper.ov_text_field(:last_name)
+        end
+      end
+      node = Nokogiri::HTML(elem)
+      #puts node.to_xhtml(indent: 2)
+      check node, :form, object, :person_attributes, attr
+    end
+
+    it "display fields_for with one attribute" do
+      attr = :last_name
+      elem = helper.ov_display object do |form|
+        helper.ov_fields_for :person do
+          helper.ov_text_field(:last_name)
+        end
+      end
+      node = Nokogiri::HTML(elem)
+      #puts node.to_xhtml(indent: 2)
+      check node, :display, object, :person_attributes, attr
+    end
+
+    it "form fields_for with one attribute" do
+      attr = :last_name
+      elem = helper.ov_form object do |form|
+        helper.ov_fields_for :person do
+          helper.ov_text_field(:last_name)
+        end
+      end
+      node = Nokogiri::HTML(elem)
+      #puts node.to_xhtml(indent: 2)
+      check node, :form, object, :person_attributes, attr
+    end
+
+    it "form fields_for with all attributes" do
+      attr = :last_name
+      elem = helper.ov_form object do |form|
+        helper.ov_fields_for :person
+      end
+      node = Nokogiri::HTML(elem)
+      #puts node.to_xhtml(indent: 2)
+      check node, :form, object, :person_attributes, attr
+    end
+  end
+
+  context "student self accesses text field in a" do
+    helperSetup object: :create_student,
+                user: :student_user
+    before :each do
+      @hold_user = Access.user
+      Access.user = create(:user, person: object.person)
+    end
+    after :each do
+      Access.user.destroy
+      Access.user = @hold_user
+    end
+    it "student form" do
+      elem = helper.ov_form object, allow: { why: true } do
+        #expect(ov_allow? helper.ov_form.object, :edit).to be true
+        helper.ov_fields_for :person do
+          expect(ov_allow? :last_name, :edit).to be true
+          expect(ov_allow? :ssn, :edit).to be true
+        end
+        helper.ov_fields_for :person
+      end
+      puts Access.explain
+      node = Nokogiri::HTML(elem)
+      puts node.to_xhtml(indent: 2)
+    end
+  end
+
+  DELTA = {form: 0, display: 1}
+  def check node, kind, obj, *rest
+    head = obj.class.to_s.underscore
+    attr = rest.last
+    d = DELTA[kind]
+    tail = rest.map{|x| "[#{x}]" }.join
+    path = "#{head}#{tail}"
+    assert_dom node, "div[class=\"ov-display\"]", d
+    assert_dom node, "form[class=\"ov-form\"]", 1 - d do
+      assert_dom node, "label[for=?]", rest.last
+      assert_dom node, "input[name=?]", path, 1 - d
+      assert_dom node, "div[class=\"ov-text\"]", d
+    end
+  end
 end

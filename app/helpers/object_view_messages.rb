@@ -4,7 +4,7 @@ module ObjectViewMessages
     tag.div class: "alert alert-danger ov-error" do
       out = [ tag.h2("#{pluralize(@ov_obj.errors.count, "error")} " +
                      "prohibited this " +
-                     @ov_obj.class.to_s.downcase +
+                     ov_obj_class_name_h +
                      "from being saved:",
                      class: "ov-error-header"), "<ul>" ]
       @ov_obj.errors.each do |error|

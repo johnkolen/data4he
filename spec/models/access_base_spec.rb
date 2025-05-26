@@ -103,124 +103,154 @@ RSpec.describe AccessBase, type: :model do
   class ATest < AccessBase
     define_access :view
   end
+
   context "labels" do
     it "has one" do
       expect(ATest.labels.size).to eq 1
     end
   end
   context "current user" do
-    class A000 < ATest
-    end
+    access = Class.new ATest
     it "gets and sets" do
-      A000.user = :user
-      expect(A000.user).to eq :user
+      access.user = :user
+      expect(access.user).to eq :user
     end
   end
+
   context "allow" do
+    before(:all) do
+      @student_user = create(:student_user)
+      @student = create(:student, person: @student_user.person)
+      @admin_user = create(:admin_user)
+      @person = create(:person)
+      expect(@student).not_to be_nil
+    end
+
+    after(:all) do
+      @student_user.destroy
+      @admin_user.destroy
+      @person.destroy
+    end
+
     it "allows simple" do
-      class A001 < ATest
+      access = Class.new ATest do
+        allow :view, Student, :admin
       end
-      A001.allow :view, Student, :admin
-      expect(A001.size).to eq 1
-      expect(A001.allow? Student, :view, :admin).to eq true
-      expect(A001.allow? Person, :view, :admin).to eq false
-      s = create(:student)
-      expect(A001.allow? s, :view, :admin).to eq true
-      p = create(:person)
-      expect(A001.allow? p, :view, :admin).to eq false
+      expect(access.size).to eq 1
+      expect(access.allow? Student, :view, :admin).to eq true
+      expect(access.allow? Person, :view, :admin).to eq false
+      expect(@student).not_to be_nil
+      expect(access.allow? @student, :view, :admin).to eq true
+      expect(access.allow? @person, :view, :admin).to eq false
     end
     it "allows combined access" do
-      class A002 < ATest
-        define_access :edit
+      access = Class.new ATest do
         define_access :both, [ :edit, :view ]
+        allow :both, Student, :admin
       end
-      A002.allow :both, Student, :admin
-      expect(A002.allow? Student, :edit, :admin).to eq true
-      expect(A002.allow? Student, :view, :admin).to eq true
-      expect(A002.allow? Person, :view, :admin).to eq false
-      expect(A002.allow? Person, :edit, :admin).to eq false
+      expect(access.allow? Student, :edit, :admin).to eq true
+      expect(access.allow? Student, :view, :admin).to eq true
+      expect(access.allow? Person, :view, :admin).to eq false
+      expect(access.allow? Person, :edit, :admin).to eq false
     end
     it "allows combined roles" do
-      class A003 < ATest
+      access = Class.new ATest do
+        allow :view, Student, [ :admin, :support ]
       end
-      A003.allow :view, Student, [ :admin, :support ]
-      expect(A003.allow? Student, :view, :admin).to eq true
-      expect(A003.allow? Student, :view, :support).to eq true
-      expect(A003.allow? Student, :view, :hr).to eq false
-      expect(A003.allow? Person, :view, :admin).to eq false
-      expect(A003.allow? Person, :edit, :support).to eq false
+      expect(access.allow? Student, :view, :admin).to eq true
+      expect(access.allow? Student, :view, :support).to eq true
+      expect(access.allow? Student, :view, :hr).to eq false
+      expect(access.allow? Person, :view, :admin).to eq false
+      expect(access.allow? Person, :edit, :support).to eq false
     end
     it "allows nested" do
-      class A004 < ATest
+      access = Class.new ATest do
+        allow :view, Student, :admin do
+          allow :view, Person, :admin
+        end
       end
-      A004.allow :view, Student, :admin do
-        A004.allow :view, Person, :admin
-      end
-      expect(A004.size).to eq 2
-      n0 = A004.node
-      r = A004.allow? Student, :view, :admin do
-        n = A004.node
+      expect(access.size).to eq 2
+      n0 = access.node
+      r = access.allow? Student, :view, :admin do
+        n = access.node
         expect(n).not_to be n0
-        expect(A004.allow? :attribute, :view, :admin).to eq true
-        expect(A004.allow? Person, :view, :admin).to eq true
-        expect(A004.node).to be n
-        expect(A004.allow? User, :view, :admin).to eq false
+        expect(access.allow? :attribute, :view, :admin).to eq true
+        expect(access.allow? Person, :view, :admin).to eq true
+        expect(access.node).to be n
+        expect(access.allow? User, :view, :admin).to eq false
       end
-      expect(A004.node).to be n0
+      expect(access.node).to be n0
       expect(r).to eq true
     end
+
     it "allows person self" do
-      class A005 < ATest
+      access = Class.new ATest do
+        allow :view, Person, :self
       end
-      A005.allow :view, Person, :self
-      expect(A005.size).to eq 1
-      u = create(:student_user)
-      o = create(:student_user_1)
-      expect(u.is_self? u.person).to be true
-      expect(u.is_self? o.person).to be false
-      A005.user = u
-      expect(A005.allow? u.person, :view, :self).to eq true
-      expect(A005.allow? o.person, :view, :self).to eq false
+      expect(access.size).to eq 1
+      expect(@student_user.is_self? @student_user.person).to be true
+      expect(@student_user.is_self? @person).to be false
+      access.user = @student_user
+      expect(access.allow? @student_user.person, :view, :self).to eq true
+      expect(access.allow? @person, :view, :self).to eq false
     end
   end
   context "denies" do
     it "nested" do
-      class A006 < ATest
+      access = Class.new ATest do
+        allow :view, Student, :admin do
+          deny :view, :catalog_year_id, :admin
+        end
       end
-      A006.allow :view, Student, :admin do
-        A006.deny :view, :catalog_year_id, :admin
-      end
-      expect(A006.size).to eq 2
-      n0 = A006.node
-      r = A006.allow? Student, :view, :admin do
-        n = A006.node
+      expect(access.size).to eq 2
+      n0 = access.node
+      r = access.allow? Student, :view, :admin do
+        n = access.node
         expect(n).not_to be n0
-        expect(A006.allow? :catalog_year_id, :view, :admin).to eq false
-        expect(A006.node).to be n
+        expect(access.allow? :catalog_year_id, :view, :admin).to eq false
+        expect(access.node).to be n
       end
-      expect(A006.node).to be n0
+      expect(access.node).to be n0
       expect(r).to eq true
     end
     it "nested self" do
-      class A007 < ATest
+      access = Class.new ATest do
+        allow :view, Person, :self do
+          deny :view, :ssn, :self
+        end
       end
-      A007.allow :view, Person, :self do
-        A007.deny :view, :ssn, :self
-      end
-      expect(A007.size).to eq 2
-      expect(A007.node).to be_nil
+      expect(access.size).to eq 2
+      expect(access.node).to be_nil
       p = create(:person)
-      A007.user = create(:user, person: p)
-      # expect(A007.allow? Person, :view, :admin).to eq true
-      n0 = A007.node
-      r = A007.allow? p, :view, :self do
-        n = A007.node
+      access.user = create(:user, person: p)
+      # expect(access.allow? Person, :view, :admin).to eq true
+      n0 = access.node
+      r = access.allow? p, :view, :self do
+        n = access.node
         expect(n).not_to be n0
-        expect(A007.allow? :ssn, :view, :self).to eq false
-        expect(A007.node).to be n
+        expect(access.allow? :ssn, :view, :self).to eq false
+        expect(access.node).to be n
       end
-      expect(A007.node).to be n0
+      expect(access.node).to be n0
       expect(r).to eq true
+    end
+    it "allows nested like Access" do
+      access = Class.new ATest do
+        allow [:view, :edit], Student, :self do
+          allow :edit, Person, :self
+        end
+      end
+      tree = access.tree_str
+      expect(tree.scan(/Student/).size).to eq 1
+    end
+    it "allows nested like Access xx" do
+      access = Class.new ATest do
+        allow [:view, :edit], Student, :self do
+          allow :edit, Person, :self
+        end
+      end
+      tree = access.tree_str
+      expect(tree.scan(/Student/).size).to eq 1
     end
   end
 end

@@ -31,6 +31,11 @@ module ControllerSetup
     destroy_list << Access.user
   end
 
+  def prettyprint x
+    node = Nokogiri::HTML(x)
+    puts node.to_xhtml(indent: 2)
+  end
+
   def builder(sym)
     case sym.to_s
     when /^create_(.*)/
@@ -105,6 +110,7 @@ module ControllerSetup
       @destroy = []
 
       before :all do
+        expect(User.count).to eq(0), "before"
         setup_all
       end
 
@@ -120,6 +126,7 @@ module ControllerSetup
 
       after :all do
         cleanup_objects
+        expect(User.count).to eq(0), "after #{self.class}"
       end
     end
 

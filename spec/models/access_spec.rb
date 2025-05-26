@@ -16,6 +16,20 @@ RSpec.describe Access, type: :model do
     end
   end
 
+    before(:all) do
+      @student_user = create(:student_user)
+      @student = create(:student, person: @student_user.person)
+      @admin_user = create(:admin_user)
+      @person = create(:person)
+      expect(@student).not_to be_nil
+    end
+
+    after(:all) do
+      @student_user.destroy
+      @admin_user.destroy
+      @person.destroy
+    end
+
   context 'Root bulk' do
     bulk_ad Access::Root,
              [ :view, :edit, :delete, :index ],
@@ -38,45 +52,37 @@ RSpec.describe Access, type: :model do
              false => [ :student, :badhat ]
   end
 
-  context 'Student' do
+  context 'Student self' do
     before :all do
-      @s = create(:student)
-      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
-      Access.user = @u
+      Access.user = @student_user
     end
     after :all do
       Access.user = nil
-      @s.delete
-      @u.destroy
     end
-    it "with default user" do
+    it "with self user" do
+      expect(Access.user.is_self?(@student)).to be true
       expect(Access.allow?(Student, :edit)).to eq false
     end
   end
 
   context 'Person' do
     before :all do
-      @s = create(:student)
-      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
-      expect(@u).not_to be_nil
-      @o = create(:student_1)
-      Access.user = @u
+      Access.user = @student_user
     end
     after :all do
-      @s.delete
-      @u.destroy
-      @o.destroy
+      Access.user = nil
     end
     context "self" do
       it 'edit' do
-        expect(@u.is_self? @u.person).to be true
-        expect(Access.allow? @s.person, :edit, :self).to be true
-        expect(Access.allow? @o.person, :edit, :self).to be false
+        expect(@student_user.is_self? @student.person).to be true
+        expect(Access.allow? @student_user.person, :edit, :self).to be true
+        expect(Access.allow? @student.person, :edit, :self).to be true
+        expect(Access.allow? @person, :edit, :self).to be false
       end
     end
     it 'nested edit' do
       r1 = nil
-      r = Access.allow? @s.person, :edit, :self do
+      r = Access.allow? @student.person, :edit, :self do
         expect(Access.allow? :date_of_birth, :edit, :self).to eq true
         expect(Access.allow? :ssn, :edit, :self).to eq false
       end
@@ -85,16 +91,10 @@ RSpec.describe Access, type: :model do
   end
   context 'User' do
     before :all do
-      @s = create(:student)
-      @u = create(:user, person_id: @s.person_id, role_id: User::RoleStudent)
-      expect(@u).not_to be_nil
-      @o = create(:student_1)
-      Access.user = @u
+      Access.user = @student_user
     end
     after :all do
-      @s.delete
-      @u.destroy
-      @o.destroy
+      Access.user = nil
     end
     it "recognize self" do
       Access.allow? Access.user, :edit

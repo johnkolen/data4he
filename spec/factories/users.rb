@@ -18,5 +18,8 @@ FactoryBot.define do
       role_id { User::RoleStudent }
       person factory: :student_person_1
     end
+    factory :user_sample do
+      email { "user#{rand(10000)}@xyz#{rand(1000)}.com" }
+    end
   end
 end

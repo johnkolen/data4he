@@ -19,32 +19,39 @@ RSpec.describe "/users", type: :request do
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    build(:user).
+    build(:user_sample).
       to_params password: "password",
                 password_confirmation: "password"
   }
 
   let(:invalid_attributes) {
-    build(:user).
+    build(:user_sample).
       to_params password: "password",
                 password_confirmation: "notpassword"
   }
 
+  before(:all) do
+    @user = create(:user_sample)
+    @student_user = create(:student_user)
+    @user_patch = create(:user_sample)
+  end
+
+  after(:all) do
+    @user.destroy
+    @user_patch.destroy
+  end
+
   describe "GET /index" do
     it "renders a successful response" do
-      u = User.create! valid_attributes
       get users_url
       expect(response).to be_successful
-      u.destroy
     end
   end
 
   describe "GET /show" do
     it "renders a successful response" do
-      user = User.create! valid_attributes
-      get user_url(user)
+      get user_url(@user)
       expect(response).to be_successful
-      user.destroy
     end
   end
 
@@ -90,61 +97,69 @@ RSpec.describe "/users", type: :request do
           password: "newpassword",
           password_confirmation: "newpassword" }
       }
-
+      before(:each) do
+        @p = @user_patch.to_params
+      end
+      after(:each) do
+        @user_patch.update!(@p) # return user_patch back
+      end
       it "updates the requested user" do
-        user = User.create! valid_attributes
-        patch user_url(user), params: { user: new_attributes }
-        user.reload
-        expect(user.email).to eq new_attributes[:email]
+        patch user_url(@user_patch), params: { user: new_attributes }
+        @user_patch.reload
+        expect(@user_patch.email).to eq new_attributes[:email]
       end
 
       it "redirects to the user" do
-        user = User.create! valid_attributes
-        patch user_url(user), params: { user: new_attributes }
-        user.reload
-        expect(response).to redirect_to(user_url(user))
+        patch user_url(@user_patch), params: { user: new_attributes }
+        @user_patch.reload
+        expect(response).to redirect_to(user_url(@user_patch))
       end
     end
 
     context "with invalid parameters" do
       it "renders a response with 422 status (i.e. to display the 'edit' template)" do
-        user = User.create! valid_attributes
-        patch user_url(user), params: { user: invalid_attributes }
+        patch user_url(@user_patch), params: { user: invalid_attributes }
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
 
   describe "DELETE /destroy" do
+    before :each do
+      @user_delete = create(:user_sample)
+    end
+    after :each do
+      @user_delete.destroy
+    end
+
     it "destroys the requested user" do
-      user = User.create! valid_attributes
       expect {
-        delete user_url(user)
+        delete user_url(@user_delete)
       }.to change(User, :count).by(-1)
+      expect(response).to redirect_to(users_url)
     end
 
     it "redirects to the users list" do
-      user = User.create! valid_attributes
-      delete user_url(user)
+      delete user_url(@user_delete)
       expect(response).to redirect_to(users_url)
     end
   end
 
   describe "GET /profile" do
     it "renders a successful response" do
-      user = User.create! valid_attributes
-      get profile_user_url(user)
+      get profile_user_url(@user)
       expect(response).to be_successful
-      user.destroy
     end
   end
 
   describe "GET /edit_profile" do
-    it "renders a successful response" do
-      user = User.create! valid_attributes
-      get edit_profile_user_url(user)
+    it "renders a successful response no person" do
+      get edit_profile_user_url(@user)
       expect(response).to be_successful
-      user.destroy
+    end
+    it "renders a successful response with person" do
+      get edit_profile_user_url(@student_user)
+      expect(response).to be_successful
     end
   end
 end

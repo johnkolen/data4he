@@ -1,5 +1,12 @@
 module ObjectViewElements
   def ov_text_field(oattr, **options)
+    if oattr == :ssn
+      puts "SSN"
+      puts Access.user.person.inspect
+      puts @ov_obj.inspect
+      puts Access.allow? oattr, @ov_access
+      puts Access.explain
+    end
     return unless Access.allow? oattr, @ov_access
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array

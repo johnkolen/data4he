@@ -172,22 +172,26 @@ class AccessBase
     @root ||= Node.new
   end
 
+  def self.node
+    @node
+  end
+
   # labels can be a single define label or an enumerable of defined labels
   # ad     can be :allow or :deny
   def self._allowdeny(labels, resource, roles, ad, &block)
-    hold = @node
     @current = @node || root
     expand(labels).each do |label|
       expand(roles).each do |role|
         # puts "#{label.inspect}  #{role.inspect} #{resource}"
         @current.add resource, role, label, ad
         if block_given?
+          hold = [@node, @current]
           @node = @current.through resource, role, label, ad
           yield
+          @node, @current = hold
         end
       end
     end
-    @node = hold
   end
 
   def self.allow(labels, resource, roles, &block)
@@ -260,7 +264,9 @@ class AccessBase
       end
 
       if block_given?
-        @node = @node.through force_class(resource), role, label, :allow
+        if resource != Root
+          @node = @node.through force_class(resource), role, label, :allow
+        end
         yield
       end
     ensure
@@ -269,12 +275,16 @@ class AccessBase
     true
   end
 
+  def self.explain
+    @explain.join(', ')
+  end
   # Check if role is able to access resource according to label
   # Returns
   #   boolean indicating access capability
   def self.allow?(resource, label, role = nil, &block)
     hold = @node
     @node ||= root
+    @explain = []
     begin
       role ||= user && user.role_sym
       raise "no role" unless role
@@ -282,12 +292,23 @@ class AccessBase
       if @node == root
         root_access = _allow?(Root, role, label, &block)
         # puts "root_access = #{root_access.inspect}"
-        return root_access unless root_access.nil?
+        unless root_access.nil?
+          @explain << "root access found"
+          return root_access
+        end
       end
       path_access = _allow?(resource, role, label, &block)
       # puts "path_access = #{path_access.inspect}"
-      return path_access unless path_access.nil?
+      unless path_access.nil?
+        @explain << "path access found"
+        return path_access
+      end
       self_access = _allow? resource, :self, label, &block
+      if self_access
+        @explain << "self access found"
+      else
+        @explain << "failed #{role} #{label} #{resource}"
+      end
       return self_access || false
     ensure
       @node = hold

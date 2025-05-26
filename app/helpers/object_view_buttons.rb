@@ -56,7 +56,7 @@ module ObjectViewButtons
     return unless ov_allow? @ov_obj, :edit
     button_class = [
       "add-btn",
-      "add-#{@ov_obj.class.to_s.downcase}-btn",
+      "add-#{ov_obj_class_name_k}-btn",
       "btn btn-primary"
     ].join " "
     @ov_new_record_found ||= @ov_obj.new_record?
@@ -70,7 +70,7 @@ module ObjectViewButtons
     return unless ov_allow? @ov_obj, :edit
     button_class = [
       "remove-btn",
-      "remove-#{@ov_obj.class.to_s.downcase}-btn",
+      "remove-#{ov_obj_class_name_k}-btn",
       "btn btn-danger"
     ].join " "
     (@ov_form.hidden_field("_destroy",

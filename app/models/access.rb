@@ -14,10 +14,7 @@ class Access < AccessBase
   allow :view, Root, :support
   allow :manage, Root, :admin
 
-  allow :index, Student, :admin
-
-  def self.person_access
-    allow :index, Person, :admin
+  def self.person_access_self
     allow :edit,
           Person,
           :self do
@@ -27,11 +24,14 @@ class Access < AccessBase
     end
   end
 
-  person_access
+  person_access_self
 
   allow :access,
         Student,
-        :self
+        :self do
+    person_access_self
+  end
+
   allow :access_all,
         Student,
         [ :administration, :registrar ]
@@ -40,6 +40,6 @@ class Access < AccessBase
   allow :edit,
         User,
         :self do
-    person_access
+    person_access_self
   end
 end

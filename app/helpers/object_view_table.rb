@@ -6,11 +6,11 @@ module ObjectViewTable
     obj.add_builds!
 
     content = [
-      render(partial: "table_row",
-             locals: { sym => [ obj ] })
+      ov_render(partial: "table_row",
+                locals: { sym => [ obj ] })
     ]
     objs.each do |obj|
-      content << render(partial: "table_row", locals: { sym => obj })
+      content << ov_render(partial: "table_row", locals: { sym => obj })
     end
     tag.table content.join.html_safe,
               id: "#{klass.to_s.underscore}_table",
