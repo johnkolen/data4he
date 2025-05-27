@@ -233,33 +233,64 @@ class AccessBase
     end
   end
 
-  def self._allow?(resource, role, label)
-    hold = [ @node, @last_obj ]
+  def self.last_label
+    @last_label
+  end
+
+  def self._allow?(resource, role, label, &block)
+    @explain << "_allow?"
+    hold = [ @node, @last_obj, @last_label ]
     begin
       if resource.is_a? Symbol
-        # raise "cain #{resource} #{@node.deny?(force_class(resource), role, label)}"
-        r = @node.deny?(resource, role, label)
-        return !r unless r.nil?
-        return true # attributes are accessible if they are reachable
+        @explain << "is attribute"
+        r = if label == @last_label
+              @explain << "match last label"
+              @explain <<
+                "deny?(#{resource},#{role},#{label})"
+              @node.deny?(resource, role, label)
+            else
+              @explain << "no match last label #{@last_label.inspect}"
+              @explain <<
+                "allow?(#{resource},#{role},#{label})"
+              @node.allow?(resource, role, label)
+            end
+        @explain << " = #{r.inspect}"
+        unless r.nil?
+          return !r if label == @last_label
+          return r
+        end
+        @explain << "default true"
+        # attributes are accessible if they are reachable
+        return label == @last_label
       else
-        # raise "cain #{force_class(resource).inspect}  #{@node.allow?(force_class(resource), role, label)}"
+        @explain << "is class"
         r = @node.allow?(force_class(resource), role, label)
+        @explain <<
+          "allow?(#{resource},#{role},#{label}) = #{r.inspect}"
         # return nil or false
         return r unless r == true
       end
+
       if role == :self
+        @explain << "self role"
         case resource
         when Symbol  # its an attribute
+          @explain <<
+            "attribute self? = #{user && user.is_self?(@last_obj)}"
           return false unless user && user.is_self?(@last_obj)
         when Class  # classes can't be people
+          @explain << "class can't have a person"
           return false
         else
+          "instance self? = #{user && user.is_self?(resource)}"
           return false unless user && user.is_self?(resource)
           @last_obj = resource
+          @last_label = label
         end
       else
-        unless resource.is_a?(Symbol) || resource.is_a?(Class)
+        unless resource.is_a?(Symbol) #|| resource.is_a?(Class)
           @last_obj = resource
+          @last_label = label
         end
       end
 
@@ -270,13 +301,13 @@ class AccessBase
         yield
       end
     ensure
-      @node, @last_obj = hold
+      @node, @last_obj, @last_label = hold
     end
     true
   end
 
   def self.explain
-    @explain.join(', ')
+    @explain.join("\n")
   end
   # Check if role is able to access resource according to label
   # Returns
@@ -284,7 +315,7 @@ class AccessBase
   def self.allow?(resource, label, role = nil, &block)
     hold = @node
     @node ||= root
-    @explain = []
+    @explain = ["allow?(#{resource}, #{label}, #{role})"]
     begin
       role ||= user && user.role_sym
       raise "no role" unless role
@@ -323,6 +354,7 @@ class AccessBase
   def self.user=(user)
     @user = user
   end
+
   def self.user
     @user
   end

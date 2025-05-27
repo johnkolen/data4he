@@ -172,9 +172,16 @@ RSpec.describe AccessBase, type: :model do
       expect(access.size).to eq 2
       n0 = access.node
       r = access.allow? Student, :view, :admin do
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+        expect(access.last_label).to eq :view
         n = access.node
         expect(n).not_to be n0
         expect(access.allow? :attribute, :view, :admin).to eq true
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
         expect(access.allow? Person, :view, :admin).to eq true
         expect(access.node).to be n
         expect(access.allow? User, :view, :admin).to eq false
@@ -251,6 +258,62 @@ RSpec.describe AccessBase, type: :model do
       end
       tree = access.tree_str
       expect(tree.scan(/Student/).size).to eq 1
+    end
+    it "blocks editing of attribute" do
+      s = create(:student)
+      access = Class.new AccessBase do
+        define_access :view
+        define_access :edit
+        allow [:view, :edit], Student, :admin do
+          deny :edit, :inst_id, :admin
+        end
+      end
+      #puts access.tree_str
+      r = access.allow? s, :edit, :admin do
+        expect(access.allow? :calendar_year_id, :edit, :admin).to eq true
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+        expect(access.allow? :inst_id, :edit, :admin).to eq false
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+        # following returns false since in the context editing Student
+        # the default is able to edit, but in this case its denied
+        # and viewing is not specified
+        expect(access.allow? :inst_id, :view, :admin).to eq false
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+      end
+      expect(r).to be true
+    end
+    it "blocks editing of attribute but allows viewing" do
+      s = create(:student)
+      access = Class.new AccessBase do
+        define_access :view
+        define_access :edit
+        allow [:view, :edit], Student, :admin do
+          deny :edit, :inst_id, :admin
+          allow :view, :inst_id, :admin
+        end
+      end
+      #puts access.tree_str
+      r = access.allow? s, :edit, :admin do
+        expect(access.allow? :calendar_year_id, :edit, :admin).to eq true
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+        expect(access.allow? :inst_id, :edit, :admin).to eq false
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+        expect(access.allow? :inst_id, :view, :admin).to eq true
+        #puts "-" * 30
+        #puts access.explain
+        #puts "=" * 30
+      end
+      expect(r).to be true
     end
   end
 end

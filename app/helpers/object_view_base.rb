@@ -27,6 +27,7 @@ module ObjectViewBase
     hold = @ov_access_class
     @ov_access_class = klass
     yield
+  ensure
     @ov_access_class = hold
   end
 
@@ -51,14 +52,17 @@ module ObjectViewBase
     hold = [@ov_access, @ov_allow_override]
     @ov_access ||= label
     if options[:why]
+      puts "-" * 30
       puts "node  #{ov_access_class.node.inspect}"
       puts "allow? #{resource.inspect}\n  label #{@ov_access}\n  user #{ov_access_class.user.inspect}"
-      puts "   -> #{ov_access_class.allow? resource, @ov_access}"
+      puts "   -> #{ov_access_class.allow? resource, label}"
+      puts ov_access_class.explain
+      puts "=" * 30
     end
     unless block_given?
       return @ov_allow_override ||
              options[:allow] ||
-             ov_access_class.allow?(resource, @ov_access)
+             ov_access_class.allow?(resource, label)
     end
     @ov_allow_override = true if options[:allow]
     if @ov_allow_override

@@ -1,29 +1,36 @@
 module ObjectViewElements
   def ov_text_field(oattr, **options)
-    if false && oattr == :ssn
-      puts "SSN"
-      puts Access.user.person.inspect
-      puts @ov_obj.inspect
-      puts Access.allow? oattr, @ov_access
-      puts Access.explain
-    end
-    return unless ov_allow? oattr, @ov_access
+    rv = ov_allow? oattr, @ov_access
+    can_edit = @ov_access == :edit && @ov_form && rv
+    #puts "can_edit = #{can_edit}"
+    can_view = !can_edit && ov_allow?(oattr, :view)
+    #puts "can_view = #{can_view}"
+
+    return unless can_edit || can_view
     return ov_col(oattr, **options) if @ov_table_row
     return if @ov_obj.is_a? Array
     id = oattr
     raise "wtf @ov_obj is nil" if @ov_obj.nil?
+
     tag.div(class: "ov-field") do
-      [ tag.label(@ov_obj.send("#{oattr}_label"),
-                  for: id,
-                  class: @ov_form ? "form-label" : "ov-label"),
-        @ov_form ?
+      out = []
+      unless options[:no_label]
+        out <<
+          tag.label(@ov_obj.send("#{oattr}_label"),
+                    for: id,
+                    class: @ov_form ? "form-label" : "ov-label")
+      end
+      if can_edit
+        out <<
           @ov_form.text_field(oattr,
                               class: "form-control",
                               pattern: @ov_obj.send("#{oattr}_pattern"),
                               id: id,
-                              **options) :
-          tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
-      ].join.html_safe
+                              **options)
+      elsif can_view
+        out << tag.div(@ov_obj.send("#{oattr}"), class: "ov-text")
+      end
+      out.join.html_safe
     end
   end
 

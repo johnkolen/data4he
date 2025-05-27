@@ -29,6 +29,79 @@ RSpec.describe ObjectViewElements, type: :helper do
         assert_dom node, "div[class=\"ov-text\"]", 0
       end
     end
+
+    it "form attribute with no edit or view" do
+      access = Class.new AccessBase do
+        define_access :view
+        define_access :edit
+        allow [:view, :edit], Student, :admin do
+          deny :edit, :inst_id, :admin
+        end
+      end
+      access.user = Access.user
+      puts access.tree_str
+      helper.ov_with_access_class access do
+        r = helper.ov_allow? object, :edit do
+          expect(helper.ov_allow? :inst_id, :edit).to be false
+          expect(helper.ov_allow? :inst_id, :view).to be false
+        end
+        expect(r).to be true
+      end
+
+      elem = nil
+      helper.ov_with_access_class access do
+        helper.form_with model: object  do |form|
+          helper.set_ov_form form
+          helper.ov_allow? object, :edit do
+            elem = helper.ov_text_field(:inst_id)
+          end
+        end
+      end
+
+      expect(elem).to be_nil, "elem generated"
+      node = Nokogiri::HTML(elem)
+      assert_dom node, "label[for=\"inst_id\"]"
+      assert_dom node, "input[name=\"student[inst_id]\"]"
+      assert_dom node, "div[class=\"ov-text\"]", 0
+    end
+
+    it "form attribute with no edit but view" do
+      access = Class.new AccessBase do
+        define_access :view
+        define_access :edit
+        allow [:view, :edit], Student, :admin do
+          deny :edit, :inst_id, :admin
+          allow :view, :inst_id, :admin
+        end
+      end
+      access.user = Access.user
+      #puts access.tree_str
+      helper.ov_with_access_class access do
+        expect(helper.ov_access_class).to be access
+        r = helper.ov_allow? object, :edit do
+          expect(helper.ov_allow? :inst_id, :edit).to be false
+          expect(helper.ov_allow? :inst_id, :view).to be true
+        end
+        expect(r).to be true
+      end
+
+      elem = nil
+      helper.ov_with_access_class access do
+        helper.form_with model: object  do |form|
+          helper.set_ov_form form
+          helper.ov_allow? object, :edit do
+            elem = helper.ov_text_field(:inst_id)
+          end
+        end
+      end
+
+      expect(elem).not_to be_nil, "elem not generated"
+      node = Nokogiri::HTML(elem)
+      assert_dom node, "label[for=\"inst_id\"]"
+      assert_dom node, "input[name=\"student[inst_id]\"]", 0
+      assert_dom node, "div[class=\"ov-text\"]", 1
+    end
+
     it "text" do
       helper.set_ov_form nil
       elem = helper.ov_text_field(:inst_id)
