@@ -13,6 +13,70 @@ require 'rails_helper'
 
 RSpec.describe ObjectViewElements, type: :helper do
 
+  def fake_form &block
+    helper.form_with model: object do |form|
+      helper.set_ov_form form
+      r = helper.ov_allow? object, :edit do
+        yield
+      end
+      expect(r).to be(true), "can't access object"
+    end
+  end
+
+  def fake_display &block
+    helper.set_ov_form nil
+    r = helper.ov_allow? object, :view do
+      yield
+    end
+    expect(r).to be(true), "can't access object"
+  end
+
+  def assert_input elem, obj, attr, **options, &block
+    expect(elem).not_to be_nil, "elem not generated"
+    klass = obj.class_name_u
+    node = Nokogiri::HTML(elem)
+    assert_dom node, "label[for=?]", attr
+    assert_dom node, "input[name=?]", "#{klass}[#{attr}]"
+    assert_dom node,
+               "div[class=?]",
+               options[:div_class] || "ov-text",
+               0
+    if block_given?
+      yield node, klass
+    end
+  end
+
+  def assert_textarea elem, obj, attr, **options, &block
+    expect(elem).not_to be_nil, "elem not generated"
+    klass = obj.class_name_u
+    node = Nokogiri::HTML(elem)
+    assert_dom node, "label[for=?]", attr
+    assert_dom node, "textarea[name=?]", "#{klass}[#{attr}]"
+    assert_dom node,
+               "div[class=?]",
+               options[:div_class] || "ov-text-area",
+               0
+    if block_given?
+      yield node, klass
+    end
+  end
+
+  def assert_display elem, obj, attr, **options, &block
+    expect(elem).not_to be_nil, "elem not generated"
+    klass = obj.class_name_u
+    node = Nokogiri::HTML(elem)
+    assert_dom node, "label[for=?]", attr
+    assert_dom node, "input[name=?]", "#{klass}[#{attr}]", 0
+    assert_dom node, "textarea[name=?]", "#{klass}[#{attr}]", 0
+    assert_dom node,
+               "div[class=?]",
+               options[:div_class] || "ov-text",
+               1
+    if block_given?
+      yield node, klass
+    end
+  end
+
   context "text field" do
     helperSetup object: :create_student,
                 user: :admin_user
@@ -20,13 +84,9 @@ RSpec.describe ObjectViewElements, type: :helper do
       helper.set_ov_obj object
     end
     it "form" do
-      helper.form_with model: object do |form|
-        helper.set_ov_form form
+      fake_form do
         elem = helper.ov_text_field(:inst_id)
-        node = Nokogiri::HTML(elem)
-        assert_dom node, "label[for=\"inst_id\"]"
-        assert_dom node, "input[name=\"student[inst_id]\"]"
-        assert_dom node, "div[class=\"ov-text\"]", 0
+        assert_input elem, object, :inst_id
       end
     end
 
@@ -39,30 +99,12 @@ RSpec.describe ObjectViewElements, type: :helper do
         end
       end
       access.user = Access.user
-      puts access.tree_str
       helper.ov_with_access_class access do
-        r = helper.ov_allow? object, :edit do
-          expect(helper.ov_allow? :inst_id, :edit).to be false
-          expect(helper.ov_allow? :inst_id, :view).to be false
-        end
-        expect(r).to be true
-      end
-
-      elem = nil
-      helper.ov_with_access_class access do
-        helper.form_with model: object  do |form|
-          helper.set_ov_form form
-          helper.ov_allow? object, :edit do
-            elem = helper.ov_text_field(:inst_id)
-          end
+        fake_form do
+          elem = helper.ov_text_field(:inst_id)
+          expect(elem).to be_nil, "elem generated unexpectedly"
         end
       end
-
-      expect(elem).to be_nil, "elem generated"
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"inst_id\"]"
-      assert_dom node, "input[name=\"student[inst_id]\"]"
-      assert_dom node, "div[class=\"ov-text\"]", 0
     end
 
     it "form attribute with no edit but view" do
@@ -75,40 +117,19 @@ RSpec.describe ObjectViewElements, type: :helper do
         end
       end
       access.user = Access.user
-      #puts access.tree_str
       helper.ov_with_access_class access do
-        expect(helper.ov_access_class).to be access
-        r = helper.ov_allow? object, :edit do
-          expect(helper.ov_allow? :inst_id, :edit).to be false
-          expect(helper.ov_allow? :inst_id, :view).to be true
-        end
-        expect(r).to be true
-      end
-
-      elem = nil
-      helper.ov_with_access_class access do
-        helper.form_with model: object  do |form|
-          helper.set_ov_form form
-          helper.ov_allow? object, :edit do
-            elem = helper.ov_text_field(:inst_id)
-          end
+        fake_form do
+          elem = helper.ov_text_field(:inst_id)
+          assert_display elem, object, :inst_id
         end
       end
-
-      expect(elem).not_to be_nil, "elem not generated"
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"inst_id\"]"
-      assert_dom node, "input[name=\"student[inst_id]\"]", 0
-      assert_dom node, "div[class=\"ov-text\"]", 1
     end
 
     it "text" do
-      helper.set_ov_form nil
-      elem = helper.ov_text_field(:inst_id)
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"inst_id\"]"
-      assert_dom node, "input[name=\"student[inst_id]\"]", 0
-      assert_dom node, "div[class=\"ov-text\"]"
+      fake_display do
+        elem = helper.ov_text_field(:inst_id)
+        assert_display elem, object, :inst_id
+      end
     end
   end
 
@@ -119,22 +140,16 @@ RSpec.describe ObjectViewElements, type: :helper do
       helper.set_ov_obj object
     end
     it "form" do
-      helper.form_with model: object do |form|
-        helper.set_ov_form form
+      fake_form do
         elem = helper.ov_text_area(:inst_id)
-        node = Nokogiri::HTML(elem)
-        assert_dom node, "label[for=\"inst_id\"]"
-        assert_dom node, "textarea[name=\"student[inst_id]\"]"
-        assert_dom node, "div[class=\"ov-text\"]", 0
+        assert_textarea elem, object, :inst_id, div_class: 'ov-textarea'
       end
     end
     it "text" do
-      helper.set_ov_form nil
-      elem = helper.ov_text_area(:inst_id)
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"inst_id\"]"
-      assert_dom node, "textarea[name=\"student[inst_id]\"]", 0
-      assert_dom node, "div[class=\"ov-text\"]"
+      fake_display do
+        elem = helper.ov_text_area(:inst_id)
+        assert_display elem, object, :inst_id, div_class: 'ov-textarea'
+      end
     end
   end
 
@@ -145,22 +160,16 @@ RSpec.describe ObjectViewElements, type: :helper do
       helper.set_ov_obj object
     end
     it "form" do
-      helper.form_with model: object do |form|
-        helper.set_ov_form form
+      fake_form do
         elem = helper.ov_password_field(:password)
-        node = Nokogiri::HTML(elem)
-        assert_dom node, "label[for=\"password\"]"
-        assert_dom node, "input[name=\"user[password]\"]"
-        assert_dom node, "div[class=\"ov-text\"]", 0
+        assert_input elem, object, :password, div_class: 'ov-password'
       end
     end
     it "text" do
-      helper.set_ov_form nil
-      elem = helper.ov_password_field(:password)
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"password\"]"
-      assert_dom node, "input[name=\"user[password]\"]", 0
-      assert_dom node, "div[class=\"ov-text\"]"
+      fake_display do
+        elem = helper.ov_password_field(:password)
+        assert_display elem, object, :password, div_class: 'ov-password'
+      end
     end
   end
 
@@ -171,18 +180,15 @@ RSpec.describe ObjectViewElements, type: :helper do
       helper.set_ov_obj object
     end
     it "form" do
-      # don't need the form DOM element and it's path
-      #helper.class.define_method :polymorphic_path do |obj, *arg, **other|
-      #    ""
-      #end
+      # phone_number_path isn't defined as there is not phone_number
+      # controller
       pnp = helper.class.respond_to? :phone_number_path
       unless pnp
         helper.class.define_method :phone_number_path do |obj, *arg, **other|
           ""
         end
       end
-      helper.form_with model: object do |form|
-        helper.set_ov_form form
+      fake_form do
         elem = helper.ov_checkbox(:active)
         node = Nokogiri::HTML(elem)
         assert_dom node, "label[for=\"active\"]"
@@ -195,12 +201,13 @@ RSpec.describe ObjectViewElements, type: :helper do
       end
     end
     it "text" do
-      helper.set_ov_form nil
-      elem = helper.ov_checkbox(:active)
-      node = Nokogiri::HTML(elem)
-      assert_dom node, "label[for=\"active\"]"
-      assert_dom node, "input[name=\"phone_number[active]\"]", 0
-      assert_dom node, "input[onclick=\"return false\"]"
+      fake_display do
+        elem = helper.ov_checkbox(:active)
+        node = Nokogiri::HTML(elem)
+        assert_dom node, "label[for=\"active\"]"
+        assert_dom node, "input[name=\"phone_number[active]\"]", 0
+        assert_dom node, "input[onclick=\"return false\"]"
+      end
     end
   end
 

@@ -85,7 +85,7 @@ production:
   primary: &primary_production
     <<: *default
     database: data4he_production
-    username: data4he
+    username: data4he_user
     password: <%= ENV["DATA4HE_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
