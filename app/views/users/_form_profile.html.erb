@@ -4,6 +4,6 @@
 <%=    ov_password_field :password %>
 <%=    ov_password_field :password_confirmation %>
 <%=    ov_select :role %>
-<%=    ov_fields_for :person %>
+<%=    ov_fields_for :person, if: :exists %>
 <%=    ov_submit %>
 <% end %>

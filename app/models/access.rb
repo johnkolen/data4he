@@ -32,6 +32,12 @@ class Access < AccessBase
     person_access_self
   end
 
+  allow :access,
+        User,
+        :self do
+    person_access_self
+  end
+
   allow :access_all,
         Student,
         [ :administration, :registrar ]

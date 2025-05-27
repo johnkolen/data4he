@@ -12,17 +12,6 @@ require 'rails_helper'
 # end
 
 RSpec.describe ObjectViewBase, type: :helper do
-  context "helpers" do
-    it "ov_obj_class_name_u" do
-      helper.set_ov_obj build(:story_task)
-      expect(helper.ov_obj_class_name_u).to eq "story_task"
-    end
-    it "ov_obj_class_name_k" do
-      helper.set_ov_obj build(:story_task)
-      expect(helper.ov_obj_class_name_k).to eq "story-task"
-    end
-  end
-
   context "admin accesses text field in a" do
     helperSetup object: :create_student,
                 user: :admin_user
@@ -111,11 +100,23 @@ RSpec.describe ObjectViewBase, type: :helper do
         end
         helper.ov_fields_for :person
       end
-      #node = Nokogiri::HTML(elem)
-      #puts node.to_xhtml(indent: 2)
+    end
+    it "profile form" do
+      elem = helper.ov_form Access.user do
+        expect(ov_allow? :email, :edit).to be true
+        #expect(ov_allow? helper.ov_form.object, :edit).to be true
+        helper.ov_fields_for :person do
+          expect(ov_allow? :last_name, :edit).to be true
+          expect(ov_allow? :ssn, :edit).to be true
+        end
+        helper.ov_fields_for :person
+      end
     end
   end
+
   context "ov_allow" do
+    helperSetup object: :create_student,
+                user: :admin_user
     it "form attribute with no edit or view" do
       access = Class.new AccessBase do
         define_access :view

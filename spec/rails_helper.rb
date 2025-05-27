@@ -11,6 +11,7 @@ require "rspec/rails"
 require "capybara/rails"
 require_relative "controller_setup"
 require_relative "common_tests"
+require_relative "helper_defs"
 
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -89,4 +90,5 @@ RSpec.configure do |config|
   config.include ControllerSetup, type: :helper
   config.include CommonTests, type: :view
   config.include CommonTests, type: :request
+  config.include HelperDefs, type: :helper
 end

@@ -13,6 +13,7 @@ require 'rails_helper'
 # sticking to rails and rspec-rails APIs to keep things simple and stable.
 
 RSpec.describe "/users", type: :request do
+
   requestSetup object: :create_user,
                objects: [:create_user_sample,
                          :create_user_sample],
@@ -53,13 +54,12 @@ RSpec.describe "/users", type: :request do
   requests_delete_destroy
 
   describe "GET /profile" do
-    before :all do
-      sign_in Access.user
-    end
+    requestSetup user: :admin_user
     it "renders a successful response no person" do
       get profile_user_url(Access.user)
       expect(response).to be_successful
     end
+
     it "renders a successful response with person" do
       student_user = create(:student_user)
       get profile_user_url(student_user)
@@ -70,14 +70,13 @@ RSpec.describe "/users", type: :request do
   end
 
   describe "GET /edit_profile" do
-    before :all do
-      sign_in Access.user
-    end
+    requestSetup user: :admin_user
     it "renders a successful response no person" do
       # current user should be an admin
       get edit_profile_user_url(Access.user)
       expect(response).to be_successful
     end
+
     it "renders a successful response with person" do
       student_user = create(:student_user)
       get edit_profile_user_url(student_user)

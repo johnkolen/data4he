@@ -52,12 +52,18 @@ class AccessBase
     end
 
     def tree_str(indent = "")
-      return "" if empty?
+      if empty?
+        return ""
+      end
       out = []
       @map.each do |key, value|
         out << "#{indent}#{key}"
         if value.respond_to? :tree_str
           x = value.tree_str("#{indent}  ")
+          if value.is_a? Node# && /( )*(.*)/ =~ x
+           # x = "#{$1}(#{value.node_id}) #{$2}"
+          end
+
           out << x unless x.empty?
         else
           out << "#{indent}#{value.inspect}"
@@ -131,6 +137,18 @@ class AccessBase
         return nil unless lx
         lx.deny? label
       end
+    end
+
+    attr_accessor :node_id
+    @@node_count = 0
+    def initialize
+      super
+      @node_id = @@node_count
+      @@node_count += 1
+    end
+
+    def inspect
+      "<#{self.class}:#{@node_id}>"
     end
 
     def add(resource, role, label, ad, child = nil)
@@ -238,7 +256,7 @@ class AccessBase
   end
 
   def self._allow?(resource, role, label, &block)
-    @explain << "_allow?"
+    @explain << "_allow? #{role} #{label}"
     hold = [ @node, @last_obj, @last_label ]
     begin
       if resource.is_a? Symbol
@@ -348,6 +366,7 @@ class AccessBase
   end
 
   def self.node
+    @node = root unless @node
     @node
   end
 

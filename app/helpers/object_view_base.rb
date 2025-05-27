@@ -77,8 +77,10 @@ module ObjectViewBase
   ###################################
 
   def ov_form(obj = nil, **options, &block)
-    rv = nil
+    rv = "<!-- access block form #{obj.class} -->"
+    options[:allow] = {why: true}
     ov_allow? obj, :edit, **(options[:allow]||{}) do
+      puts "form node: #{ov_access_class.node.inspect}"
       @ov_obj = obj || @ov_obj
       p = {}
       if options[:turbo]
@@ -99,31 +101,41 @@ module ObjectViewBase
 
   ###################################
 
-  def ov_display(obj = nil, &block)
-    rv = nil
-    ov_allow? obj, :view do
+  def ov_display(obj = nil, **options, &block)
+    raise obj.inspect unless obj
+    hold = @ov_obj
+    rv = "<!-- access block display #{obj.class} -->"
+    options[:allow] = {why: true}
+    ov_allow? obj, :view, **(options[:allow] || {}) do
       return capture &block if @ov_form
       @ov_obj = obj || @ov_obj
+      old = @ov_obj
       content = capture &block
+      raise "wtf" unless old == @ov_obj
       rv = tag.div content, id: dom_id(@ov_obj), class: "ov-display"
     end
     rv
+  ensure
+    @ov_obj = hold
   end
 
   ###################################
 
   def ov_fields_for(oattr, **options, &block)
-    if options[:if] == :exists
-      return nil unless @ov_obj.send(oattr)
-    end
     hold = [ @ov_form, @ov_obj, @ov_elem ]
-    rv = if @ov_form
+    obj = @ov_obj.send(oattr)
+    if options[:if] == :exists
+      return nil unless obj
+    end
+    raise "missing attribute: #{oattr} in #{@ov_obj.class}" unless obj
+
+    if @ov_form
       _ov_fields_for_form oattr, **options, &block
     else
       _ov_fields_for_display oattr, **options, &block
     end
+  ensure
     @ov_form, @ov_obj, @ov_elem = hold
-    rv
   end
 
 
@@ -137,13 +149,13 @@ module ObjectViewBase
       else
         @ov_obj.send(oattr)
       end
-    res = capture &block
+    capture &block
+  ensure
     @ov_obj = hold
-    res
   end
 
   def ov_render *args, **opts
-    #puts "render #{args.inspect}, #{opts.inspect}"
+    puts "render #{args.inspect}, #{opts.inspect}"
     render *args, **opts
   end
 
@@ -255,35 +267,45 @@ module ObjectViewBase
 
   # name should be kebab as it's used for css classes
   def _ov_fields_for_form_element(oattr, obj, css_name, num, **options, &block)
+    puts "_ov_fields_for_form_element"
     hold = [@ov_form, @ov_obj]
-    @ov_form.fields_for oattr, obj  do |form|
+    rv = @ov_form.fields_for oattr, obj  do |form|
       @ov_form = form
       @ov_obj = form.object
       raise "no form object: element(#{oattr},#{obj.inspect})" unless @ov_obj
-      li_id = "#{css_name}-li-#{num}"
-      # include object"s id  if it's been persisted
-      pid = @ov_obj.persisted? ? @ov_form.hidden_field(:id) : ""
-      #puts "block given = #{block_given?.inspect}"
-      fields = block_given? ?
-                 capture(&block) :
-                 ov_render(_template(oattr), oattr => @ov_obj)
-      #puts "template = #{_template(oattr)}, #{oattr} => #{@ov_obj}"
-      #puts "fields = #{fields}"
-      li_body = pid + fields
-      if options[:removable]
-        r = ov_remove(li_id)
-        li_body += r if r
+      elem = "<!-- access block #{oattr} element -->"
+      #options[:allow] = { why: true }
+      ov_allow? @ov_obj, @ov_access, **(options[:allow] || {}) do
+        puts "_ov_fields_for_form_element inside"
+        li_id = "#{css_name}-li-#{num}"
+        # include object"s id  if it's been persisted
+        pid = @ov_obj.persisted? ? @ov_form.hidden_field(:id) : ""
+        #puts "block given = #{block_given?.inspect}"
+        puts "_ov_fields_for_form_element inside 2"
+        fields = block_given? ?
+                   capture(&block) :
+                   ov_render(_template(oattr), oattr => @ov_obj)
+        #puts "template = #{_template(oattr)}, #{oattr} => #{@ov_obj}"
+        #puts "fields = #{fields}"
+        puts "_ov_fields_for_form_element inside fields: #{fields.html_safe}"
+        li_body = pid + fields
+        if options[:removable]
+          r = ov_remove(li_id)
+          li_body += r if r
+        end
+        puts "_ov_fields_for_form_element inside #{li_body.inspect}"
+        elem = tag.li(li_body.html_safe,
+                      id: li_id,
+                      class: "ov-object collapse show").html_safe
+        if options[:template]
+          tag.template(elem,
+                       id: "ov-#{css_name}-template",
+                       data: { "ov-fields-for-target": "template" })
+        else
+          elem
+        end
       end
-      elem = tag.li(li_body.html_safe,
-                    id: li_id,
-                    class: "ov-object collapse show").html_safe
-      if options[:template]
-        tag.template(elem,
-                     id: "ov-#{css_name}-template",
-                     data: { "ov-fields-for-target": "template" })
-      else
-        elem
-      end
+      elem.html_safe
     end
   ensure
     @ov_form, @ov_obj = hold
@@ -291,7 +313,6 @@ module ObjectViewBase
 
   # Generate the content for all the fields of oattr
   def _ov_fields_for_form(oattr, **options, &block)
-    #puts "_ov_fields_for_form"
     hold = @ov_obj
     if ov_one_to_one?(oattr)
       _ov_fields_for_form_one oattr, **options, &block

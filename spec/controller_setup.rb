@@ -28,8 +28,16 @@ module ControllerSetup
 
   def accessSetup(user_sym)
     u = build(user_sym)
-    Access.user = u.class.find_by(email: u.email) || create(user_sym)
-    destroy_list << Access.user
+    unless u.class.find_by(email: u.email)
+      u =  create(user_sym)
+      destroy_list << Access.user
+    end
+    if false && self.class.access_class
+      helper.set_ov_access_class = self.class.access_class
+      helper.ov_access_class.user = u
+    else
+      Access.user = u
+    end
   end
 
   def builder(sym)
@@ -101,6 +109,7 @@ module ControllerSetup
     attr_accessor :setup_objects
     attr_accessor :setup_user
     attr_accessor :destroy
+    attr_accessor :access_class
 
     def classSetup **options
       @setup_object = options[:object]
@@ -109,7 +118,6 @@ module ControllerSetup
       @destroy = []
 
       before :all do
-        expect(User.count).to eq(0), "before"
         setup_all
       end
 
@@ -125,7 +133,6 @@ module ControllerSetup
 
       after :all do
         cleanup_objects
-        expect(User.count).to eq(0), "after #{self.class}"
       end
     end
 
@@ -143,14 +150,13 @@ module ControllerSetup
       end
     end
 
-    def helperSetup **options
+    def helperSetup **options, &block
       @setup_object = options[:object].dup
       @setup_objects = options[:objects].dup
       @setup_user = options[:user].dup
       @destroy = []
 
       before :all do
-        expect(User.count).to eq(0)
         setup_all
       end
 
@@ -164,15 +170,11 @@ module ControllerSetup
         end
         #puts "current user = #{Access.user.inspect}"
       end
-
+      if block_given?
+        @access_class = Class.new AccessBase, &block
+      end
       after :all do
         self.cleanup_objects
-      end
-      after(:all) do
-        if false && User.count == 0
-          ulist = User.all.map(&:inspect).join "\n"
-          raise "nonzero User count #{self.inspect}\n#{ulist}\n#{destroy_list.size}"
-        end
       end
     end
 

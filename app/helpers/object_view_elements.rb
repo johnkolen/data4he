@@ -201,15 +201,16 @@ module ObjectViewElements
   end
 
   def _ov_x_field(oattr, labelx, inputx, displayx, **options)
-    rv = ov_allow? oattr, @ov_access
+    rv = ov_allow? oattr, @ov_access #, why: true
     can_edit = @ov_access == :edit && @ov_form && rv
     #puts "can_edit = #{can_edit}"
-    can_view = !can_edit && ov_allow?(oattr, :view)
+    can_view = !can_edit && ov_allow?(oattr, :view) #, why: true)
     #puts "can_view = #{can_view}"
+    blocked = "<!-- access block #{@ov_obj.class}.#{oattr} -->"
 
-    return unless can_edit || can_view
+    return blocked unless can_edit || can_view
     return ov_col(oattr, **options) if @ov_table_row
-    return if @ov_obj.is_a? Array
+    return if @ov_obj.is_a? Array  # table header
     id = oattr
     raise "wtf @ov_obj is nil" if @ov_obj.nil?
 
