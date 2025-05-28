@@ -57,19 +57,19 @@ class AccessBase
       end
       out = []
       @map.each do |key, value|
+        z = (value.is_a?(Node) && value.empty?) ?
+              " #{value.node_id}" :
+              ""
         out << "#{indent}#{key}"
         if value.respond_to? :tree_str
-          x = value.tree_str("#{indent}  ")
-          if value.is_a? Node# && /( )*(.*)/ =~ x
-           # x = "#{$1}(#{value.node_id}) #{$2}"
-          end
-
-          out << x unless x.empty?
+          out << value.tree_str("#{indent}  ") + z
         else
-          out << "#{indent}#{value.inspect}"
+          out << "#{indent}#{value.inspect}#{z}"
         end
       end
-      out.join("\n").gsub(/\n\s+(allow|deny)/m, ': \1')
+      out.join("\n").
+        gsub(/\n\s+(allow|deny)/m, ': \1')
+        #gsub(/(allow|deny)\s*\n\s+(\d+)/m, ': \1 \2')
     end
   end
 
