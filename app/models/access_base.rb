@@ -337,6 +337,7 @@ class AccessBase
           @explain << "instance self? = #{user && user.is_self?(resource)}"
           @explain << "    user: #{user.inspect}"
           @explain << "    resource: #{resource.inspect}"
+          @explain << "       node: #{@node.inspect}"
           return false unless user && user.is_self?(resource)
           @last_obj = resource
           @last_label = label

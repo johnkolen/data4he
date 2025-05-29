@@ -74,3 +74,4 @@ group :development do
 end
 
 gem "dartsass-rails"
+gem "object_view", path: "../object_view"

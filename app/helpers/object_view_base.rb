@@ -60,6 +60,8 @@ module ObjectViewBase
   ###################################
 
   def ov_allow? resource, label, **options, &block
+    puts "access  #{ov_access_class.object_id.inspect}"
+    puts "node  #{ov_access_class.node.inspect}"
     hold = [@ov_access, @ov_allow_override]
     @ov_access ||= label
     if options[:why]
@@ -90,8 +92,8 @@ module ObjectViewBase
   def ov_form(obj = nil, **options, &block)
     raise "ov_form object is nil" if obj.nil?
     _ov_hold_state do
-      #puts "*" * 30
-      #puts "form node: #{ov_access_class.node.inspect}"
+      puts "*" * 30
+      puts "form node: #{ov_access_class.node.inspect}"
       rv = "<!-- access block form #{obj.class} -->"
       #options[:allow] = {why: true}
       ov_allow? obj, :edit, **(options[:allow]||{}) do
@@ -119,8 +121,8 @@ module ObjectViewBase
   def ov_display(obj = nil, **options, &block)
     raise "ov_diplay object is nil" if obj.nil?
     _ov_hold_state do
-      #puts "*" * 30
-      #puts "display node: #{ov_access_class.node.inspect}"
+      puts "*" * 30
+      puts "display node: #{ov_access_class.node.inspect}"
       rv = "<!-- access block display #{obj.class} -->"
       #options[:allow] = {why: true}
       ov_allow? obj, :view, **(options[:allow] || {}) do
@@ -295,8 +297,8 @@ module ObjectViewBase
 
   # name should be kebab as it's used for css classes
   def _ov_fields_for_form_element(oattr, obj, css_name, num, **options, &block)
-    #puts "*" * 30
-    #puts "fields_for_form_element node: #{ov_access_class.node.inspect}"
+    puts "*" * 30
+    puts "fields_for_form_element node: #{ov_access_class.node.inspect}"
     #puts "_ov_fields_for_form_element"
     _ov_hold_state do
       @ov_form.fields_for oattr, obj  do |form|

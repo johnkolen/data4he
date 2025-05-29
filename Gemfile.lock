@@ -1,3 +1,9 @@
+PATH
+  remote: ../object_view
+  specs:
+    object_view (0.1.0)
+      rails (~> 8.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -453,6 +459,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
+  object_view!
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)

@@ -8,4 +8,5 @@ module ApplicationHelper
   include ObjectViewModal
   include ObjectViewNavigation
   include ObjectViewTable
+  include ObjectView::FormHelper
 end

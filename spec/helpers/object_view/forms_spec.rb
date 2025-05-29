@@ -12,6 +12,11 @@ require 'rails_helper'
 # end
 
 RSpec.describe ObjectViewBase, type: :helper do
+
+  it "calls formish" do
+    helper.ov_formish
+  end
+
   context "total accsss form" do
     helperSetup object: :create_student,
                 user: :admin_user do
@@ -178,8 +183,13 @@ RSpec.describe ObjectViewBase, type: :helper do
                    no_input: [attr],
                    display: [attr] do
           helper.ov_form object, allow:{why: true} do |form|
+            puts "@" * 70
+            puts "#{ov_access_class.object_id.inspect}"
+            puts self.class.access_class.node.inspect
             expect(ov_allow? attr, :edit).not_to be true
+            puts self.class.access_class.node.inspect
             expect(ov_allow? attr, :view, why: true).to be true
+            puts self.class.access_class.node.inspect
             helper.ov_text_field(attr)
           end
         end
