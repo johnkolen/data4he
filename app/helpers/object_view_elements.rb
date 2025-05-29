@@ -60,7 +60,7 @@ module ObjectViewElements
 
   def _ov_text_display oattr, id, **options
     tag.div(@ov_obj.send("#{oattr}"),
-            class: "ov-text",
+            class: "ov-text display-#{oattr}",
             **options)
   end
   ##############################################################
@@ -73,7 +73,7 @@ module ObjectViewElements
   end
 
   def _ov_text_area_display oattr, id, **options
-    tag.div(@ov_obj.send("#{oattr}"), class: "ov-textarea")
+    tag.div(@ov_obj.send("#{oattr}"), class: "ov-textarea display-#{oattr}")
   end
 
   ##############################################################
@@ -86,7 +86,7 @@ module ObjectViewElements
   end
 
   def _ov_password_display oattr, id, **options
-    tag.div(@ov_obj.send("#{oattr}"), class: "ov-password")
+    tag.div(@ov_obj.send("#{oattr}"), class: "ov-password display-#{oattr}")
   end
 
   ##############################################################
@@ -99,7 +99,7 @@ module ObjectViewElements
                         **options),
       tag.label(@ov_obj.send("#{oattr}_label"),
                   for: id,
-                  class: @ov_form ? "form-check-label" : "ov-checkbox-label")
+                  class: "form-check-label")
     ]
   end
 
@@ -109,10 +109,10 @@ module ObjectViewElements
       tag.div(tag.input(type: "checkbox",
                         checked: @ov_obj.send("#{oattr}"),
                         onclick: "return false",
-                        class: cb_class), class: "ov-checkbok-holder"),
+                        class: cb_class), class: "ov-checkbok-holder display-#{oattr}"),
       tag.label(@ov_obj.send("#{oattr}_label"),
                   for: id,
-                  class: @ov_form ? "form-check-label" : "ov-checkbox-label")
+                  class: "ov-checkbox-label")
     ]
   end
 
@@ -201,11 +201,11 @@ module ObjectViewElements
   end
 
   def _ov_x_field(oattr, labelx, inputx, displayx, **options)
-    rv = ov_allow? oattr, @ov_access #, why: true
+    rv = ov_allow? oattr, @ov_access, why: true
     can_edit = @ov_access == :edit && @ov_form && rv
-    #puts "can_edit = #{can_edit}"
+    puts "can_edit #{oattr} = #{can_edit}"
     can_view = !can_edit && ov_allow?(oattr, :view) #, why: true)
-    #puts "can_view = #{can_view}"
+    puts "can_view #{oattr} = #{can_view}"
     blocked = "<!-- access block #{@ov_obj.class}.#{oattr} -->"
 
     return blocked unless can_edit || can_view

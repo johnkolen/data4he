@@ -51,10 +51,8 @@ class AccessBase
       end
     end
 
-    def tree_str(indent = "")
-      if empty?
-        return ""
-      end
+    def tree_strx(indent = "")
+      return "" if empty?
       out = []
       @map.each do |key, value|
         z = (value.is_a?(Node) && value.empty?) ?
@@ -69,7 +67,25 @@ class AccessBase
       end
       out.join("\n").
         gsub(/\n\s+(allow|deny)/m, ': \1')
-        #gsub(/(allow|deny)\s*\n\s+(\d+)/m, ': \1 \2')
+      #gsub(/(allow|deny)\s*\n\s+(\d+)/m, ': \1 \2')
+    end
+
+    def tree_str(indent = "")
+      return "" if empty?
+      out = []
+      @map.each do |key, value|
+        out << "#{indent}#{key}"
+        if value.respond_to? :tree_str
+          x = value.tree_str("#{indent}  ")
+          out << x unless x.empty?
+        else
+          out << "#{indent}#{value.inspect}"
+        end
+      end
+      if is_a? Node
+        out[0] << " (#{node_id})"
+      end
+      out.join("\n").gsub(/\n\s+(allow|deny)/m, ': \1')
     end
   end
 
@@ -90,6 +106,24 @@ class AccessBase
         return false if @map[:allow]
         return true if @map[:deny]
         nil
+      end
+      def tree_str(indent = "")
+        #return super
+        return "" if empty?
+        out = []
+        @map.each do |key, value|
+          out << "#{indent}#{key}"
+          if value.respond_to? :tree_str
+            if value.empty?
+              out.last << " (#{value.node_id})"
+            else
+              out << value.tree_str("#{indent}  ")
+            end
+          else
+            out << "#{indent}#{value.inspect}"
+          end
+        end
+        out.join("\n").gsub(/\n\s+(allow|deny)/m, ': \1')
       end
     end
 
@@ -300,7 +334,9 @@ class AccessBase
           @explain << "class can't have a person"
           return false
         else
-          "instance self? = #{user && user.is_self?(resource)}"
+          @explain << "instance self? = #{user && user.is_self?(resource)}"
+          @explain << "    user: #{user.inspect}"
+          @explain << "    resource: #{resource.inspect}"
           return false unless user && user.is_self?(resource)
           @last_obj = resource
           @last_label = label

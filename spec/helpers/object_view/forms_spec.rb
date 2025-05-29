@@ -12,7 +12,7 @@ require 'rails_helper'
 # end
 
 RSpec.describe ObjectViewBase, type: :helper do
-  context "form" do
+  context "total accsss form" do
     helperSetup object: :create_student,
                 user: :admin_user do
       define_access :view
@@ -35,7 +35,7 @@ RSpec.describe ObjectViewBase, type: :helper do
 
     it "nested with one attribute" do
       with_access do
-        puts helper.ov_access_class.tree_str
+        #puts helper.ov_access_class.tree_str
         h_ov_check :form, object, :person_attributes, attr = :last_name do
           helper.ov_form object do |form|
             helper.ov_fields_for :person do
@@ -48,9 +48,9 @@ RSpec.describe ObjectViewBase, type: :helper do
 
     it "nested with all attributes" do
       with_access do
+        #puts helper.ov_access_class.tree_str
         h_ov_check :form,
-                   object, :person_attributes, :last_name,
-                   pp: true do
+                   object, :person_attributes, :last_name do
           helper.ov_form object do |form|
             helper.ov_fields_for :person
           end
@@ -60,4 +60,155 @@ RSpec.describe ObjectViewBase, type: :helper do
 
   end
 
+  context "total accsss except attribute form" do
+    helperSetup object: :create_student,
+                user: :admin_user do
+      define_access :view
+      define_access :edit
+      # label resource role
+      allow [:view, :edit], Student, :admin do
+        allow [:view, :edit], Person, :admin do
+          deny :edit, :ssn, :admin
+        end
+      end
+    end
+
+    it "nested with one attribute" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form, object, :person_attributes, attr = :ssn,
+                   no_input: [ :ssn ],
+                   no_label: [ :ssn ] do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person do
+              helper.ov_text_field(attr)
+            end
+          end
+        end
+      end
+    end
+
+    it "nested with all attributes" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form,
+                   object, :person_attributes, :ssn,
+                   no_input: [ :ssn ],
+                   no_label: [ :ssn ] do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person
+          end
+        end
+      end
+    end
+
+  end
+
+  context "total accsss only view attribute form" do
+    helperSetup object: :create_student,
+                user: :admin_user do
+      define_access :view
+      define_access :edit
+      # label resource role
+      allow [:view, :edit], Student, :admin do
+        allow [:view, :edit], Person, :admin do
+          deny :edit, :ssn, :admin
+          allow :view, :ssn, :admin
+        end
+      end
+    end
+
+    it "nested with one attribute" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form, object, :person_attributes, attr = :ssn,
+                   no_input: [ :ssn ],
+                   display: [ :ssn ] do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person do
+              helper.ov_text_field(attr)
+            end
+          end
+        end
+      end
+    end
+
+    it "nested with all attributes" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form,
+                   object, :person_attributes, :ssn,
+                   no_input: [ :ssn ],
+                   display: [ :ssn ] do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person
+          end
+        end
+      end
+    end
+  end
+
+  context "self accsss only view attribute form" do
+    helperSetup object: :create_student,
+                user: :admin_user do
+      define_access :view
+      define_access :edit
+      # label resource role
+      allow [:view, :edit], Student, :self do
+        deny :edit, :inst_id, :self
+        allow :view, :inst_id, :self
+        allow [:view, :edit], Person, :self do
+          deny :edit, :ssn, :self
+          allow :view, :ssn, :self
+        end
+      end
+    end
+
+    before :each do
+      u = create(:user, role_id: User::RoleStudent, person: s_object.person)
+      Access.user = u
+      puts "before: #{u.inspect}"
+      destroy_list << u
+    end
+
+    it "containing a single attribute" do
+      puts self.class.access_class.tree_str
+      with_access do
+        h_ov_check :form, object, attr = :inst_id, pp: true,
+                   no_input: [attr],
+                   display: [attr] do
+          helper.ov_form object, allow:{why: true} do |form|
+            expect(ov_allow? attr, :edit).not_to be true
+            expect(ov_allow? attr, :view, why: true).to be true
+            helper.ov_text_field(attr)
+          end
+        end
+      end
+    end
+
+    it "nested with one attribute" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form, object, :person_attributes, attr = :last_name do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person do
+              helper.ov_text_field(:last_name)
+            end
+          end
+        end
+      end
+    end
+
+    it "nested with all attributes" do
+      with_access do
+        #puts helper.ov_access_class.tree_str
+        h_ov_check :form,
+                   object, :person_attributes, :last_name do
+          helper.ov_form object do |form|
+            helper.ov_fields_for :person
+          end
+        end
+      end
+    end
+  end
 end
