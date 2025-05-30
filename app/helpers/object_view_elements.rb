@@ -39,6 +39,30 @@ module ObjectViewElements
                 **options)
   end
 
+  def ov_select(oattr, **options)
+    _ov_x_field(oattr,
+                :_ov_label,
+                :_ov_select_input,
+                :_ov_select_display,
+                **options)
+  end
+
+  def ov_date_field(oattr, **options)
+    _ov_x_field(oattr,
+                :_ov_label,
+                :_ov_date_input,
+                :_ov_date_display,
+                **options)
+  end
+
+  def ov_datetime_field(oattr, **options)
+    _ov_x_field(oattr,
+                :_ov_label,
+                :_ov_datetime_input,
+                :_ov_datetime_display,
+                **options)
+  end
+
   ##############################################################
   def _ov_label oattr, id, **options
     tag.label(@ov_obj.send("#{oattr}_label"),
